@@ -556,8 +556,23 @@ if not Head then
 	return
 end
 
+local AimPart
+
+if Settings.AimPart == "Cabeza" then
+	AimPart = Character:FindFirstChild("Head")
+else
+	AimPart =
+		Character:FindFirstChild("UpperTorso")
+		or Character:FindFirstChild("Torso")
+		or Character:FindFirstChild("HumanoidRootPart")
+end
+
+if not AimPart then
+	return
+end
+
 local AimPosition =
-	Head.Position
+	AimPart.Position
 
 		+ (
 			Root.AssemblyLinearVelocity
