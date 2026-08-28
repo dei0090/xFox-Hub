@@ -27,6 +27,7 @@ local Settings = {
 
 	Smoothness = 0.18,
 	Prediction = 0.10,
+AimPart = "Cabeza"
 
 	TargetTeam = "Todos",
 
@@ -385,6 +386,36 @@ end
 
 AimButton.Activated:Connect(ToggleAim)
 AimMobileButton.Activated:Connect(ToggleAim)
+--==================================================
+-- 🎯 OBJETIVO: CABEZA / PECHO
+--==================================================
+
+local AimPartButton =
+	Button("🎯 Objetivo: CABEZA")
+
+local AimParts = {
+	"Cabeza",
+	"Pecho"
+}
+
+local AimPartIndex = 1
+
+AimPartButton.Activated:Connect(function()
+
+	AimPartIndex += 1
+
+	if AimPartIndex > #AimParts then
+		AimPartIndex = 1
+	end
+
+	Settings.AimPart =
+		AimParts[AimPartIndex]
+
+	AimPartButton.Text =
+		"🎯 Objetivo: "
+		..string.upper(Settings.AimPart)
+
+end)
 
 --==================================================
 -- Q = AIM
