@@ -549,8 +549,15 @@ RunService.RenderStepped:Connect(function()
 		return
 	end
 
-	local AimPosition =
-		Root.Position
+	local Head =
+	Character:FindFirstChild("Head")
+
+if not Head then
+	return
+end
+
+local AimPosition =
+	Head.Position
 
 		+ (
 			Root.AssemblyLinearVelocity
