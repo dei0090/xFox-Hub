@@ -1125,4 +1125,459 @@ SuggestionsFrame.Parent = Scroll
 
 AddCorner(SuggestionsFrame,8)
 
-loc
+local SuggestionsLayout =
+	Instance.new("UIListLayout")
+
+SuggestionsLayout.Padding =
+	UDim.new(0,4)
+
+SuggestionsLayout.SortOrder =
+	Enum.SortOrder.LayoutOrder
+
+SuggestionsLayout.Parent =
+	SuggestionsFrame
+
+local function Normalize(Text)
+
+	return string.lower(
+		string.gsub(
+			Text,
+			"%s+",
+			""
+		)
+	)
+
+end
+
+local function UpdateSuggestions()
+
+	-- Limpiar sugerencias anteriores
+	for _,Child in ipairs(
+		SuggestionsFrame:GetChildren()
+	) do
+
+		if Child:IsA("TextButton") then
+			Child:Destroy()
+		end
+
+	end
+
+	local Search =
+		Normalize(NameBox.Text)
+
+	if Search == "" then
+
+		SuggestionsFrame.Visible = false
+		SuggestionsFrame.Size =
+			UDim2.new(1,0,0,0)
+
+		return
+	end
+
+	local Found = {}
+
+	for _,Player in ipairs(
+		Players:GetPlayers()
+	) do
+
+		if Player ~= LocalPlayer then
+
+			local Name =
+				Normalize(Player.Name)
+
+			local Display =
+				Normalize(Player.DisplayName)
+
+			if string.find(Name,Search,1,true)
+				or string.find(Display,Search,1,true) then
+
+				table.insert(
+					Found,
+					Player
+				)
+
+			end
+		end
+	end
+
+	-- Máximo 5 sugerencias
+	local MaxSuggestions =
+		math.min(#Found,5)
+
+	if MaxSuggestions == 0 then
+
+		SuggestionsFrame.Visible = false
+		SuggestionsFrame.Size =
+			UDim2.new(1,0,0,0)
+
+		return
+	end
+
+	for Index = 1,MaxSuggestions do
+
+		local Player =
+			Found[Index]
+
+		local Suggestion =
+			Instance.new("TextButton")
+
+		Suggestion.Size =
+			UDim2.new(1,0,0,38)
+
+		Suggestion.BackgroundColor3 =
+			Color3.fromRGB(45,45,52)
+
+		Suggestion.Text =
+			"👤 "
+			..Player.DisplayName
+			.."  (@"
+			..Player.Name
+			..")"
+
+		Suggestion.TextColor3 =
+			Color3.new(1,1,1)
+
+		Suggestion.TextSize = 13
+
+		Suggestion.Font =
+			Enum.Font.Gotham
+
+		Suggestion.AutoButtonColor = true
+		Suggestion.Parent =
+			SuggestionsFrame
+
+		AddCorner(Suggestion,7)
+
+		Suggestion.Activated:Connect(function()
+
+			NameBox.Text =
+				Player.Name
+
+			NameBox.CursorPosition =
+				#NameBox.Text + 1
+
+			SuggestionsFrame.Visible =
+				false
+
+			SuggestionsFrame.Size =
+				UDim2.new(1,0,0,0)
+
+		end)
+
+	end
+
+	SuggestionsFrame.Visible = true
+
+	SuggestionsFrame.Size =
+		UDim2.new(
+			1,
+			0,
+			0,
+			(MaxSuggestions * 42) + 4
+		)
+
+end
+
+NameBox:GetPropertyChangedSignal("Text"):Connect(
+	UpdateSuggestions
+)
+
+--==================================================
+-- BOTONES
+--==================================================
+
+local WhiteButton =
+	Button(
+		"✓  AÑADIR A WHITELIST"
+	)
+
+WhiteButton.BackgroundColor3 =
+	Color3.fromRGB(40,110,70)
+
+local BlackButton =
+	Button(
+		"✕  AÑADIR A BLACKLIST"
+	)
+
+BlackButton.BackgroundColor3 =
+	Color3.fromRGB(120,45,45)
+
+local Status =
+	Instance.new("TextLabel")
+
+Status.Size =
+	UDim2.new(1,0,0,32)
+
+Status.BackgroundTransparency = 1
+
+Status.Text =
+	"Escribe un jugador."
+
+Status.TextColor3 =
+	Color3.fromRGB(180,180,180)
+
+Status.TextSize = 12
+
+Status.Font =
+	Enum.Font.Gotham
+
+Status.Parent = Scroll
+
+local WhiteHeader =
+	Section("✓ WHITELIST")
+
+local BlackHeader =
+	Section("✕ BLACKLIST")
+
+--==================================================
+-- 🔎 FIND PLAYER
+--==================================================
+
+local function FindPlayer(Text)
+
+	Text =
+		Normalize(Text)
+
+	if Text == "" then
+		return nil
+	end
+
+	for _,Player in ipairs(
+		Players:GetPlayers()
+	) do
+
+		local Name =
+			Normalize(Player.Name)
+
+		local Display =
+			Normalize(Player.DisplayName)
+
+		if Name == Text
+			or Display == Text then
+
+			return Player
+		end
+
+	end
+
+	return nil
+end
+
+--==================================================
+-- 🔄 REFRESH LISTS
+--==================================================
+
+local function RefreshLists()
+
+	for _,Child in ipairs(
+		Scroll:GetChildren()
+	) do
+
+		if Child:GetAttribute(
+			"FoxListEntry"
+		) then
+
+			Child:Destroy()
+
+		end
+
+	end
+
+	WhiteHeader.LayoutOrder = 100
+	BlackHeader.LayoutOrder = 200
+
+	for UserId in pairs(
+		Whitelist
+	) do
+
+		local Player =
+			Players:GetPlayerByUserId(
+				UserId
+			)
+
+		if Player then
+
+			local B =
+				Button(
+					"✓ "
+					..Player.Name
+					.."     ×"
+				)
+
+			B:SetAttribute(
+				"FoxListEntry",
+				true
+			)
+
+			B.LayoutOrder = 110
+
+			B.BackgroundColor3 =
+				Color3.fromRGB(
+					40,110,70
+				)
+
+			B.Activated:Connect(function()
+
+				Whitelist[UserId] =
+					nil
+
+				Status.Text =
+					Player.Name
+					.." eliminado de WHITELIST."
+
+				RefreshLists()
+
+			end)
+
+		end
+
+	end
+
+	for UserId in pairs(
+		Blacklist
+	) do
+
+		local Player =
+			Players:GetPlayerByUserId(
+				UserId
+			)
+
+		if Player then
+
+			local B =
+				Button(
+					"✕ "
+					..Player.Name
+					.."     ×"
+				)
+
+			B:SetAttribute(
+				"FoxListEntry",
+				true
+			)
+
+			B.LayoutOrder = 210
+
+			B.BackgroundColor3 =
+				Color3.fromRGB(
+					100,40,40
+				)
+
+			B.Activated:Connect(function()
+
+				Blacklist[UserId] =
+					nil
+
+				Status.Text =
+					Player.Name
+					.." eliminado de BLACKLIST."
+
+				RefreshLists()
+
+			end)
+
+		end
+
+	end
+end
+
+--==================================================
+-- ✓ WHITELIST
+--==================================================
+
+WhiteButton.Activated:Connect(function()
+
+	local Player =
+		FindPlayer(
+			NameBox.Text
+		)
+
+	if not Player then
+
+		Status.Text =
+			"❌ Jugador no encontrado."
+
+		return
+	end
+
+	Whitelist[Player.UserId] =
+		true
+
+	Blacklist[Player.UserId] =
+		nil
+
+	Status.Text =
+		"✓ "
+		..Player.Name
+		.." añadido a WHITELIST."
+
+	NameBox.Text = ""
+
+	SuggestionsFrame.Visible =
+		false
+
+	RefreshLists()
+
+end)
+
+--==================================================
+-- ✕ BLACKLIST
+--==================================================
+
+BlackButton.Activated:Connect(function()
+
+	local Player =
+		FindPlayer(
+			NameBox.Text
+		)
+
+	if not Player then
+
+		Status.Text =
+			"❌ Jugador no encontrado."
+
+		return
+	end
+
+	Blacklist[Player.UserId] =
+		true
+
+	Whitelist[Player.UserId] =
+		nil
+
+	Status.Text =
+		"✕ "
+		..Player.Name
+		.." añadido a BLACKLIST."
+
+	NameBox.Text = ""
+
+	SuggestionsFrame.Visible =
+		false
+
+	RefreshLists()
+
+end)
+
+--==================================================
+-- 👥 ACTUALIZAR SUGERENCIAS AL ENTRAR/SALIR
+--==================================================
+
+Players.PlayerAdded:Connect(function()
+
+	if NameBox.Text ~= "" then
+		UpdateSuggestions()
+	end
+
+end)
+
+Players.PlayerRemoving:Connect(function()
+
+	if NameBox.Text ~= "" then
+		UpdateSuggestions()
+	end
+
+end)
+
+-- Primera carga
+RefreshLists()
