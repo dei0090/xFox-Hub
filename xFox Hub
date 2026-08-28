@@ -27,7 +27,6 @@ local Settings = {
 
 	Smoothness = 0.18,
 	Prediction = 0.10,
-AimPart = "Cabeza"
 
 	TargetTeam = "Todos",
 
