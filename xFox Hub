@@ -419,7 +419,7 @@ AimPartButton.Activated:Connect(function()
 end)
 
 --==================================================
--- Q = AIM
+-- X = AIM
 --==================================================
 
 UserInputService.InputBegan:Connect(function(Input, Processed)
