@@ -273,38 +273,130 @@ end)
 -- UI
 --==================================================
 
+--==================================================
+-- 🎨 UI MODERNA — xFOX HUB v2
+--==================================================
+
 local function Section(Text)
 
+	local Holder = Instance.new("Frame")
+	Holder.Size = UDim2.new(1,0,0,34)
+	Holder.BackgroundTransparency = 1
+	Holder.Parent = Scroll
+
+	local Line = Instance.new("Frame")
+	Line.Size = UDim2.fromOffset(4,20)
+	Line.Position = UDim2.fromOffset(0,7)
+	Line.BackgroundColor3 = Settings.Theme
+	Line.BorderSizePixel = 0
+	Line.Parent = Holder
+
+	AddCorner(Line,2)
+
 	local Label = Instance.new("TextLabel")
-	Label.Size = UDim2.new(1,0,0,28)
+	Label.Size = UDim2.new(1,-15,1,0)
+	Label.Position = UDim2.fromOffset(12,0)
 	Label.BackgroundTransparency = 1
 	Label.Text = Text
-	Label.TextColor3 = Settings.Theme
-	Label.TextSize = 14
+	Label.TextColor3 = Color3.fromRGB(255,255,255)
+	Label.TextSize = 15
 	Label.Font = Enum.Font.GothamBold
 	Label.TextXAlignment = Enum.TextXAlignment.Left
-	Label.Parent = Scroll
+	Label.Parent = Holder
 
-	return Label
+	return Holder
 end
+
 
 local function Button(Text)
 
 	local B = Instance.new("TextButton")
-	B.Size = UDim2.new(1,0,0,42)
-	B.BackgroundColor3 = Color3.fromRGB(42,42,48)
+
+	B.Size = UDim2.new(1,0,0,44)
+
+	B.BackgroundColor3 =
+		Color3.fromRGB(32,32,39)
+
 	B.Text = Text
-	B.TextColor3 = Color3.new(1,1,1)
+
+	B.TextColor3 =
+		Color3.fromRGB(235,235,235)
+
 	B.TextSize = 14
-	B.Font = Enum.Font.GothamBold
+
+	B.Font =
+		Enum.Font.GothamBold
+
 	B.AutoButtonColor = false
+
+	B.BorderSizePixel = 0
+
 	B.Parent = Scroll
 
-	AddCorner(B,9)
+	AddCorner(B,10)
+
+	-- Borde
+	local Stroke = Instance.new("UIStroke")
+
+	Stroke.Thickness = 1
+
+	Stroke.Color =
+		Color3.fromRGB(65,65,75)
+
+	Stroke.Transparency = 0.25
+
+	Stroke.Parent = B
+
+
+	-- Efecto al pasar/presionar
+	B.MouseEnter:Connect(function()
+
+		B.BackgroundColor3 =
+			Color3.fromRGB(45,45,53)
+
+		Stroke.Color =
+			Settings.Theme
+
+	end)
+
+
+	B.MouseLeave:Connect(function()
+
+		if not B:GetAttribute("ActiveButton") then
+
+			B.BackgroundColor3 =
+				Color3.fromRGB(32,32,39)
+
+			Stroke.Color =
+				Color3.fromRGB(65,65,75)
+
+		end
+
+	end)
+
+
+	B.MouseButton1Down:Connect(function()
+
+		B.BackgroundColor3 =
+			Darken(Settings.Theme,0.25)
+
+	end)
+
+
+	B.MouseButton1Up:Connect(function()
+
+		if not B:GetAttribute("ActiveButton") then
+
+			B.BackgroundColor3 =
+				Color3.fromRGB(45,45,53)
+
+		end
+
+	end)
+
 
 	return B
 end
-
 local function UpdateToggle(B, Label, Enabled)
 
 	B.Text =
