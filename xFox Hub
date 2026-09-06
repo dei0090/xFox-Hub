@@ -428,7 +428,7 @@ UserInputService.InputBegan:Connect(function(Input, Processed)
 		return
 	end
 
-	if Input.KeyCode == Enum.KeyCode.Q then
+	if Input.KeyCode == Enum.KeyCode.X then
 		ToggleAim()
 	end
 
