@@ -194,6 +194,15 @@ MainStroke.Parent = Main
 FloatingButton.Activated:Connect(function()
 	Main.Visible = not Main.Visible
 end)
+UserInputService.InputBegan:Connect(function(Input, Processed)
+    if Processed then
+        return
+    end
+
+    if Input.KeyCode == Enum.KeyCode.M then
+        Main.Visible = not Main.Visible
+    end
+end)
 
 --==================================================
 -- HEADER
