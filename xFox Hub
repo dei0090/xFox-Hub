@@ -258,6 +258,7 @@ local function MakeDraggable(Object, Handle)
 end
 
 MakeDraggable(Main, Header)
+MakeDraggable(FloatingButton)
 
 AddCorner(Header,14)
 
@@ -405,6 +406,7 @@ AimMobileButton.Visible =
 	UserInputService.TouchEnabled
 
 AimMobileButton.Parent = Gui
+MakeDraggable(AimMobileButton)
 
 AddCorner(AimMobileButton,35)
 
