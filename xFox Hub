@@ -225,11 +225,34 @@ end)
 --==================================================
 
 local Header = Instance.new("Frame")
-Header.Size = UDim2.new(1,0,0,65)
-Header.BackgroundColor3 = Darken(Settings.Theme,0.15)
+
+Header.Size =
+    UDim2.new(1,0,0,65)
+
+Header.BackgroundColor3 =
+    Color3.fromRGB(25,25,32)
+
+Header.BackgroundTransparency = 0.05
+
 Header.BorderSizePixel = 0
+
 Header.ZIndex = 11
+
 Header.Parent = Main
+
+AddCorner(Header,14)
+
+local HeaderStroke =
+    Instance.new("UIStroke")
+
+HeaderStroke.Thickness = 1
+
+HeaderStroke.Color =
+    Settings.Theme
+
+HeaderStroke.Transparency = 0.35
+
+HeaderStroke.Parent = Header
 local function MakeDraggable(Object, Handle)
     local Dragging = false
     local DragStart
