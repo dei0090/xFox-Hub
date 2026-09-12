@@ -1,1070 +1,504 @@
 --==================================================
--- 🦊 xFOX HUB - RESPONSIVE DEMO
--- PC + MOBILE 1080x2400
--- SOLO DEMOSTRACIÓN VISUAL
+-- xFOX HUB - DEMO VISUAL COMPATIBLE
+-- PC + MOBILE
 --==================================================
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
 
---==================================================
--- LIMPIAR DEMO ANTERIOR
---==================================================
-
-local Old = PlayerGui:FindFirstChild("xFOX_RESPONSIVE_DEMO")
-
-if Old then
-    Old:Destroy()
+-- Remove an older copy
+local old = PlayerGui:FindFirstChild("xFOX_RESPONSIVE_DEMO")
+if old then
+    old:Destroy()
 end
 
---==================================================
--- GUI
---==================================================
+-- Colors
+local ORANGE = Color3.fromRGB(255, 120, 35)
+local BG = Color3.fromRGB(15, 15, 18)
+local PANEL = Color3.fromRGB(22, 22, 26)
+local CARD = Color3.fromRGB(28, 28, 33)
+local TEXT = Color3.fromRGB(240, 240, 242)
+local MUTED = Color3.fromRGB(145, 145, 150)
 
-local Gui = Instance.new("ScreenGui")
-Gui.Name = "xFOX_RESPONSIVE_DEMO"
-Gui.ResetOnSpawn = false
-Gui.IgnoreGuiInset = true
-Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-Gui.Parent = PlayerGui
-
---==================================================
--- COLORES
---==================================================
-
-local Theme = Color3.fromRGB(255,120,35)
-
-local Background = Color3.fromRGB(15,15,18)
-local SidebarColor = Color3.fromRGB(20,20,23)
-local CardColor = Color3.fromRGB(25,25,29)
-local ButtonColor = Color3.fromRGB(31,31,36)
-local TextColor = Color3.fromRGB(240,240,242)
-local MutedColor = Color3.fromRGB(145,145,150)
-
---==================================================
--- FUNCIONES VISUALES
---==================================================
-
-local function Corner(Object, Radius)
-
-    local C = Instance.new("UICorner")
-    C.CornerRadius = UDim.new(0,Radius)
-    C.Parent = Object
-
-    return C
+local function corner(obj, radius)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, radius)
+    c.Parent = obj
 end
 
-local function Stroke(Object)
-
-    local S = Instance.new("UIStroke")
-    S.Thickness = 1
-    S.Color = Color3.fromRGB(65,65,72)
-    S.Transparency = 0.2
-    S.Parent = Object
-
-    return S
+local function stroke(obj)
+    local s = Instance.new("UIStroke")
+    s.Thickness = 1
+    s.Color = Color3.fromRGB(65, 65, 72)
+    s.Transparency = 0.2
+    s.Parent = obj
 end
 
---==================================================
--- VENTANA
---==================================================
+-- ScreenGui
+local gui = Instance.new("ScreenGui")
+gui.Name = "xFOX_RESPONSIVE_DEMO"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Parent = PlayerGui
 
-local Main = Instance.new("Frame")
-Main.Parent = Gui
-Main.AnchorPoint = Vector2.new(0.5,0.5)
-Main.Position = UDim2.fromScale(0.5,0.5)
-Main.Size = UDim2.new(0.92,0,0.78,0)
-Main.BackgroundColor3 = Background
-Main.BorderSizePixel = 0
+-- Main window
+local main = Instance.new("Frame")
+main.Parent = gui
+main.AnchorPoint = Vector2.new(0.5, 0.5)
+main.Position = UDim2.new(0.5, 0, 0.5, 0)
+main.Size = UDim2.new(0.92, 0, 0.78, 0)
+main.BackgroundColor3 = BG
+main.BorderSizePixel = 0
+corner(main, 12)
+stroke(main)
 
-Corner(Main,12)
-Stroke(Main)
+-- Top bar
+local top = Instance.new("Frame")
+top.Parent = main
+top.Size = UDim2.new(1, 0, 0, 64)
+top.BackgroundColor3 = PANEL
+top.BorderSizePixel = 0
 
---==================================================
--- TOP BAR
---==================================================
+local title = Instance.new("TextLabel")
+title.Parent = top
+title.Position = UDim2.new(0, 16, 0, 7)
+title.Size = UDim2.new(1, -32, 0, 28)
+title.BackgroundTransparency = 1
+title.Text = "xFOX HUB"
+title.TextColor3 = TEXT
+title.TextSize = 22
+title.Font = Enum.Font.GothamBold
+title.TextXAlignment = Enum.TextXAlignment.Left
 
-local Top = Instance.new("Frame")
-Top.Parent = Main
-Top.Size = UDim2.new(1,0,0,65)
-Top.BackgroundColor3 = Color3.fromRGB(22,22,26)
-Top.BorderSizePixel = 0
+local subtitle = Instance.new("TextLabel")
+subtitle.Parent = top
+subtitle.Position = UDim2.new(0, 17, 0, 35)
+subtitle.Size = UDim2.new(1, -34, 0, 18)
+subtitle.BackgroundTransparency = 1
+subtitle.Text = "Responsive Control Panel"
+subtitle.TextColor3 = MUTED
+subtitle.TextSize = 10
+subtitle.Font = Enum.Font.Gotham
+subtitle.TextXAlignment = Enum.TextXAlignment.Left
 
-local Title = Instance.new("TextLabel")
-Title.Parent = Top
-Title.Position = UDim2.fromOffset(18,7)
-Title.Size = UDim2.new(1,-150,0,30)
-Title.BackgroundTransparency = 1
-Title.Text = "🦊 xFOX HUB"
-Title.TextColor3 = TextColor
-Title.TextSize = 22
-Title.Font = Enum.Font.GothamBold
-Title.TextXAlignment = Enum.TextXAlignment.Left
+-- Sidebar
+local sidebar = Instance.new("Frame")
+sidebar.Parent = main
+sidebar.Position = UDim2.new(0, 0, 0, 64)
+sidebar.Size = UDim2.new(0, 185, 1, -64)
+sidebar.BackgroundColor3 = PANEL
+sidebar.BorderSizePixel = 0
 
-local Subtitle = Instance.new("TextLabel")
-Subtitle.Parent = Top
-Subtitle.Position = UDim2.fromOffset(20,37)
-Subtitle.Size = UDim2.new(1,-150,0,18)
-Subtitle.BackgroundTransparency = 1
-Subtitle.Text = "Responsive Control Panel"
-Subtitle.TextColor3 = MutedColor
-Subtitle.TextSize = 10
-Subtitle.Font = Enum.Font.Gotham
-Subtitle.TextXAlignment = Enum.TextXAlignment.Left
+local side = Instance.new("ScrollingFrame")
+side.Parent = sidebar
+side.Size = UDim2.new(1, 0, 1, 0)
+side.BackgroundTransparency = 1
+side.BorderSizePixel = 0
+side.ScrollBarThickness = 2
+side.CanvasSize = UDim2.new(0, 0, 0, 0)
+side.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
---==================================================
--- TOP BUTTONS
---==================================================
+local sidePad = Instance.new("UIPadding")
+sidePad.Parent = side
+sidePad.PaddingTop = UDim.new(0, 12)
+sidePad.PaddingLeft = UDim.new(0, 8)
+sidePad.PaddingRight = UDim.new(0, 8)
+sidePad.PaddingBottom = UDim.new(0, 12)
 
-local function TopButton(Text, Offset)
+local sideLayout = Instance.new("UIListLayout")
+sideLayout.Parent = side
+sideLayout.Padding = UDim.new(0, 4)
+sideLayout.SortOrder = Enum.SortOrder.LayoutOrder
 
-    local B = Instance.new("TextButton")
-    B.Parent = Top
-    B.AnchorPoint = Vector2.new(1,0)
-    B.Position = UDim2.new(1,Offset,0,10)
-    B.Size = UDim2.fromOffset(43,43)
-    B.BackgroundColor3 = Color3.fromRGB(29,29,34)
-    B.Text = Text
-    B.TextColor3 = TextColor
-    B.TextSize = 20
-    B.Font = Enum.Font.GothamBold
-    B.BorderSizePixel = 0
-    B.AutoButtonColor = false
-
-    Corner(B,8)
-
-    return B
+local function category(text)
+    local l = Instance.new("TextLabel")
+    l.Parent = side
+    l.Size = UDim2.new(1, 0, 0, 28)
+    l.BackgroundTransparency = 1
+    l.Text = "|  " .. text
+    l.TextColor3 = ORANGE
+    l.TextSize = 12
+    l.Font = Enum.Font.GothamBold
+    l.TextXAlignment = Enum.TextXAlignment.Left
 end
 
-TopButton("▣",-145)
-TopButton("—",-95)
-TopButton("×",-45)
+local currentButton
 
---==================================================
--- SIDEBAR
---==================================================
+-- Content
+local content = Instance.new("Frame")
+content.Parent = main
+content.Position = UDim2.new(0, 185, 0, 64)
+content.Size = UDim2.new(1, -185, 1, -64)
+content.BackgroundColor3 = BG
+content.BorderSizePixel = 0
 
-local Sidebar = Instance.new("Frame")
-Sidebar.Parent = Main
-Sidebar.Position = UDim2.fromOffset(0,65)
-Sidebar.Size = UDim2.new(0,190,1,-65)
-Sidebar.BackgroundColor3 = SidebarColor
-Sidebar.BorderSizePixel = 0
+local contentTitle = Instance.new("TextLabel")
+contentTitle.Parent = content
+content.Position = UDim2.new(0, 18, 0, 12)
+content.Size = UDim2.new(1, -36, 0, 34)
+content.BackgroundTransparency = 1
+content.Text = "|  AIM ASSIST"
+content.TextColor3 = TEXT
+content.TextSize = 18
+content.Font = Enum.Font.GothamBold
+content.TextXAlignment = Enum.TextXAlignment.Left
 
---==================================================
--- SIDEBAR SCROLL
---==================================================
+local pages = {}
 
-local SideScroll = Instance.new("ScrollingFrame")
-SideScroll.Parent = Sidebar
-SideScroll.Size = UDim2.new(1,0,1,0)
-SideScroll.BackgroundTransparency = 1
-SideScroll.BorderSizePixel = 0
-SideScroll.ScrollBarThickness = 2
-SideScroll.CanvasSize = UDim2.fromOffset(0,700)
+local function makePage(name)
+    local page = Instance.new("ScrollingFrame")
+    page.Name = name
+    page.Parent = content
+    page.Position = UDim2.new(0, 14, 0, 54)
+    page.Size = UDim2.new(1, -28, 1, -66)
+    page.BackgroundTransparency = 1
+    page.BorderSizePixel = 0
+    page.ScrollBarThickness = 3
+    page.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    page.Visible = false
 
-local SideLayout = Instance.new("UIListLayout")
-SideLayout.Parent = SideScroll
-SideLayout.Padding = UDim.new(0,5)
-SideLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    local pad = Instance.new("UIPadding")
+    pad.Parent = page
+    pad.PaddingBottom = UDim.new(0, 16)
 
-local SidePadding = Instance.new("UIPadding")
-SidePadding.Parent = SideScroll
-SidePadding.PaddingTop = UDim.new(0,15)
-SidePadding.PaddingLeft = UDim.new(0,8)
-SidePadding.PaddingRight = UDim.new(0,8)
-SidePadding.PaddingBottom = UDim.new(0,20)
+    local layout = Instance.new("UIListLayout")
+    layout.Parent = page
+    layout.Padding = UDim.new(0, 8)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
 
---==================================================
--- SIDEBAR CATEGORY
---==================================================
-
-local function Category(Text)
-
-    local L = Instance.new("TextLabel")
-    L.Parent = SideScroll
-    L.Size = UDim2.new(1,0,0,28)
-    L.BackgroundTransparency = 1
-    L.Text = "│  "..Text
-    L.TextColor3 = Theme
-    L.TextSize = 12
-    L.Font = Enum.Font.GothamBold
-    L.TextXAlignment = Enum.TextXAlignment.Left
-
-    return L
+    pages[name] = page
+    return page
 end
 
---==================================================
--- SIDEBAR BUTTON
---==================================================
+local aim = makePage("Aim")
+local esp = makePage("ESP")
+local lists = makePage("Lists")
+local mobile = makePage("Mobile")
+local pc = makePage("PC")
+local config = makePage("Config")
+aim.Visible = true
 
-local CurrentButton
-
-local function SideButton(Text)
-
-    local B = Instance.new("TextButton")
-    B.Parent = SideScroll
-    B.Size = UDim2.new(1,0,0,42)
-    B.BackgroundColor3 = SidebarColor
-    B.Text = "   "..Text
-    B.TextColor3 = MutedColor
-    B.TextSize = 14
-    B.Font = Enum.Font.GothamMedium
-    B.TextXAlignment = Enum.TextXAlignment.Left
-    B.BorderSizePixel = 0
-    B.AutoButtonColor = false
-
-    Corner(B,7)
-
-    return B
+local function section(page, text)
+    local l = Instance.new("TextLabel")
+    l.Parent = page
+    l.Size = UDim2.new(1, 0, 0, 28)
+    l.BackgroundTransparency = 1
+    l.Text = "|  " .. text
+    l.TextColor3 = ORANGE
+    l.TextSize = 13
+    l.Font = Enum.Font.GothamBold
+    l.TextXAlignment = Enum.TextXAlignment.Left
 end
 
---==================================================
--- CONTENT
---==================================================
+local function toggle(page, text, default)
+    local b = Instance.new("TextButton")
+    b.Parent = page
+    b.Size = UDim2.new(1, 0, 0, 56)
+    b.BackgroundColor3 = CARD
+    b.BorderSizePixel = 0
+    b.Text = ""
+    b.AutoButtonColor = false
+    corner(b, 9)
+    stroke(b)
 
-local Content = Instance.new("Frame")
-Content.Parent = Main
-Content.Position = UDim2.fromOffset(190,65)
-Content.Size = UDim2.new(1,-190,1,-65)
-Content.BackgroundColor3 = Background
-Content.BorderSizePixel = 0
+    local label = Instance.new("TextLabel")
+    label.Parent = b
+    label.Position = UDim2.new(0, 14, 0, 0)
+    label.Size = UDim2.new(1, -105, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = TEXT
+    label.TextSize = 14
+    label.Font = Enum.Font.GothamMedium
+    label.TextXAlignment = Enum.TextXAlignment.Left
 
-local ContentTitle = Instance.new("TextLabel")
-ContentTitle.Parent = Content
-Content.Position = UDim2.fromOffset(22,16)
-Content.Size = UDim2.new(1,-44,0,35)
-Content.BackgroundTransparency = 1
-Content.Text = "│  🎯 AIM ASSIST"
-Content.TextColor3 = Color3.fromRGB(175,175,180)
-Content.TextSize = 19
-Content.Font = Enum.Font.GothamBold
-Content.TextXAlignment = Enum.TextXAlignment.Left
+    local state = Instance.new("TextLabel")
+    state.Parent = b
+    state.AnchorPoint = Vector2.new(1, 0.5)
+    state.Position = UDim2.new(1, -10, 0.5, 0)
+    state.Size = UDim2.new(0, 58, 0, 34)
+    state.BorderSizePixel = 0
+    state.TextColor3 = TEXT
+    state.TextSize = 12
+    state.Font = Enum.Font.GothamBold
+    corner(state, 7)
 
---==================================================
--- PAGE CONTAINER
---==================================================
+    local enabled = default == true
 
-local Pages = {}
+    local function update()
+        state.Text = enabled and "ON" or "OFF"
+        state.BackgroundColor3 = enabled and ORANGE or Color3.fromRGB(55, 55, 60)
+    end
 
-local function CreatePage(Name)
-
-    local Page = Instance.new("ScrollingFrame")
-    Page.Name = Name
-    Page.Parent = Content
-    Page.Position = UDim2.fromOffset(18,60)
-    Page.Size = UDim2.new(1,-36,1,-72)
-    Page.BackgroundTransparency = 1
-    Page.BorderSizePixel = 0
-    Page.ScrollBarThickness = 3
-    Page.CanvasSize = UDim2.fromOffset(0,0)
-    Page.Visible = false
-
-    local Layout = Instance.new("UIListLayout")
-    Layout.Parent = Page
-    Layout.Padding = UDim.new(0,9)
-    Layout.SortOrder = Enum.SortOrder.LayoutOrder
-
-    local Padding = Instance.new("UIPadding")
-    Padding.Parent = Page
-    Padding.PaddingBottom = UDim.new(0,20)
-
-    Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-
-        Page.CanvasSize = UDim2.fromOffset(
-            0,
-            Layout.AbsoluteContentSize.Y + 25
-        )
-
+    b.Activated:Connect(function()
+        enabled = not enabled
+        update()
     end)
 
-    Pages[Name] = Page
-
-    return Page
+    update()
 end
 
-local AimPage = CreatePage("Aim")
-local ESPPage = CreatePage("ESP")
-local ListsPage = CreatePage("Lists")
-local MobilePage = CreatePage("Mobile")
-local PCPage = CreatePage("PC")
-local ConfigPage = CreatePage("Config")
+local function select(page, text, values, default)
+    local b = Instance.new("TextButton")
+    b.Parent = page
+    b.Size = UDim2.new(1, 0, 0, 56)
+    b.BackgroundColor3 = CARD
+    b.BorderSizePixel = 0
+    b.Text = ""
+    b.AutoButtonColor = false
+    corner(b, 9)
+    stroke(b)
 
-AimPage.Visible = true
+    local label = Instance.new("TextLabel")
+    label.Parent = b
+    label.Position = UDim2.new(0, 14, 0, 0)
+    label.Size = UDim2.new(1, -125, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = TEXT
+    label.TextSize = 14
+    label.Font = Enum.Font.GothamMedium
+    label.TextXAlignment = Enum.TextXAlignment.Left
 
---==================================================
--- RESPONSIVE
---==================================================
+    local value = Instance.new("TextLabel")
+    value.Parent = b
+    value.AnchorPoint = Vector2.new(1, 0.5)
+    value.Position = UDim2.new(1, -10, 0.5, 0)
+    value.Size = UDim2.new(0, 105, 0, 34)
+    value.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+    value.TextColor3 = TEXT
+    value.TextSize = 12
+    value.Font = Enum.Font.GothamBold
+    value.BorderSizePixel = 0
+    corner(value, 7)
 
-local function UpdateResponsive()
+    local index = default or 1
 
-    local Width = Main.AbsoluteSize.X
+    local function update()
+        value.Text = tostring(values[index])
+    end
 
-    if Width < 600 then
+    b.Activated:Connect(function()
+        index = index + 1
+        if index > #values then
+            index = 1
+        end
+        update()
+    end)
 
-        Sidebar.Size = UDim2.new(0,145,1,-65)
+    update()
+end
 
-        Content.Position =
-            UDim2.fromOffset(145,65)
+local function slider(page, text, default, step, min, max)
+    local holder = Instance.new("Frame")
+    holder.Parent = page
+    holder.Size = UDim2.new(1, 0, 0, 72)
+    holder.BackgroundColor3 = CARD
+    holder.BorderSizePixel = 0
+    corner(holder, 9)
+    stroke(holder)
 
-        Content.Size =
-            UDim2.new(1,-145,1,-65)
+    local label = Instance.new("TextLabel")
+    label.Parent = holder
+    label.Position = UDim2.new(0, 14, 0, 6)
+    label.Size = UDim2.new(1, -28, 0, 24)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextColor3 = TEXT
+    label.TextSize = 14
+    label.Font = Enum.Font.GothamMedium
+    label.TextXAlignment = Enum.TextXAlignment.Left
 
-        Title.TextSize = 19
+    local minus = Instance.new("TextButton")
+    minus.Parent = holder
+    minus.Position = UDim2.new(0, 10, 0, 38)
+    minus.Size = UDim2.new(0, 42, 0, 26)
+    minus.BackgroundColor3 = Color3.fromRGB(45, 45, 51)
+    minus.Text = "-"
+    minus.TextColor3 = TEXT
+    minus.TextSize = 16
+    minus.Font = Enum.Font.GothamBold
+    minus.BorderSizePixel = 0
+    corner(minus, 6)
 
+    local plus = Instance.new("TextButton")
+    plus.Parent = holder
+    plus.AnchorPoint = Vector2.new(1, 0)
+    plus.Position = UDim2.new(1, -10, 0, 38)
+    plus.Size = UDim2.new(0, 42, 0, 26)
+    plus.BackgroundColor3 = Color3.fromRGB(45, 45, 51)
+    plus.Text = "+"
+    plus.TextColor3 = TEXT
+    plus.TextSize = 16
+    plus.Font = Enum.Font.GothamBold
+    plus.BorderSizePixel = 0
+    corner(plus, 6)
+
+    local value = Instance.new("TextLabel")
+    value.Parent = holder
+    value.AnchorPoint = Vector2.new(0.5, 0)
+    value.Position = UDim2.new(0.5, 0, 0, 38)
+    value.Size = UDim2.new(0, 90, 0, 26)
+    value.BackgroundTransparency = 1
+    value.TextColor3 = TEXT
+    value.TextSize = 13
+    value.Font = Enum.Font.GothamBold
+
+    local number = default
+
+    local function update()
+        number = math.clamp(number, min, max)
+        value.Text = string.format("%.2f", number)
+    end
+
+    minus.Activated:Connect(function()
+        number = number - step
+        update()
+    end)
+
+    plus.Activated:Connect(function()
+        number = number + step
+        update()
+    end)
+
+    update()
+end
+
+-- AIM
+section(aim, "AIM ASSIST")
+toggle(aim, "Aim Assist", false)
+select(aim, "Objetivo", {"Cabeza", "Pecho"}, 1)
+slider(aim, "Suavidad", 0.18, 0.05, 0.05, 1)
+slider(aim, "Prediccion", 0.10, 0.05, 0, 1)
+select(aim, "Tipo de objetivo", {"Todos", "Wanted", "Police"}, 1)
+slider(aim, "Distancia maxima", 500, 100, 100, 3500)
+select(aim, "Aimbot Keybind", {"X", "Q", "E", "V"}, 1)
+
+-- ESP
+section(esp, "ESP")
+toggle(esp, "ESP", false)
+toggle(esp, "Mostrar nombre", true)
+toggle(esp, "Mostrar equipo", true)
+toggle(esp, "Mostrar distancia", true)
+toggle(esp, "Mostrar health", true)
+slider(esp, "Distancia maxima", 500, 100, 100, 3500)
+
+-- LISTS
+section(lists, "PLAYER FILTER")
+toggle(lists, "Whitelist", false)
+toggle(lists, "Blacklist", false)
+
+local box = Instance.new("TextBox")
+box.Parent = lists
+box.Size = UDim2.new(1, 0, 0, 52)
+box.BackgroundColor3 = CARD
+box.PlaceholderText = "Escribe el nombre del jugador..."
+box.PlaceholderColor3 = MUTED
+box.Text = ""
+box.TextColor3 = TEXT
+box.TextSize = 13
+box.Font = Enum.Font.Gotham
+box.ClearTextOnFocus = false
+box.BorderSizePixel = 0
+corner(box, 9)
+stroke(box)
+
+-- MOBILE
+section(mobile, "CONTROLES MOVIL")
+toggle(mobile, "Boton Aim movil", true)
+toggle(mobile, "Boton flotante", true)
+toggle(mobile, "Interfaz tactil", true)
+select(mobile, "Tamano de interfaz", {"Pequeno", "Normal", "Grande"}, 2)
+
+-- PC
+section(pc, "CONTROLES PC")
+select(pc, "Tecla Aim Assist", {"X", "Q", "E", "V"}, 1)
+select(pc, "Tecla abrir/cerrar", {"RightShift", "Insert", "F4"}, 1)
+
+-- CONFIG
+section(config, "CONFIGURACION")
+select(config, "Tema", {"Naranja", "Rojo", "Azul", "Morado"}, 1)
+toggle(config, "Animaciones", true)
+toggle(config, "Interfaz compacta", false)
+
+-- Navigation
+local function showPage(page, pageTitle)
+    for _, p in pairs(pages) do
+        p.Visible = false
+    end
+    page.Visible = true
+    contentTitle.Text = "|  " .. pageTitle
+
+    if currentButton then
+        currentButton.BackgroundColor3 = PANEL
+        currentButton.TextColor3 = MUTED
+    end
+end
+
+local function navButton(text, page, pageTitle)
+    local b = Instance.new("TextButton")
+    b.Parent = side
+    b.Size = UDim2.new(1, 0, 0, 40)
+    b.BackgroundColor3 = PANEL
+    b.Text = "   " .. text
+    b.TextColor3 = MUTED
+    b.TextSize = 13
+    b.Font = Enum.Font.GothamMedium
+    b.TextXAlignment = Enum.TextXAlignment.Left
+    b.BorderSizePixel = 0
+    b.AutoButtonColor = false
+    corner(b, 7)
+
+    b.Activated:Connect(function()
+        showPage(page, pageTitle)
+        b.BackgroundColor3 = Color3.fromRGB(38, 38, 43)
+        b.TextColor3 = ORANGE
+        currentButton = b
+    end)
+
+    return b
+end
+
+category("COMBAT")
+local aimButton = navButton("Aimbot", aim, "AIM ASSIST")
+navButton("Silent Aim", aim, "AIM ASSIST")
+navButton("Gun Mod", aim, "AIM ASSIST")
+
+category("UTILITY")
+navButton("ESP", esp, "ESP")
+navButton("Whitelist", lists, "WHITELIST / BLACKLIST")
+navButton("Blacklist", lists, "WHITELIST / BLACKLIST")
+navButton("Movil", mobile, "CONTROLES MOVIL")
+navButton("PC", pc, "CONTROLES PC")
+
+category("SYSTEM")
+navButton("Configuracion", config, "CONFIGURACION")
+
+aimButton.BackgroundColor3 = Color3.fromRGB(38, 38, 43)
+aimButton.TextColor3 = ORANGE
+currentButton = aimButton
+
+-- Responsive sidebar
+local function responsive()
+    local width = main.AbsoluteSize.X
+
+    if width < 600 then
+        sidebar.Size = UDim2.new(0, 140, 1, -64)
+        content.Position = UDim2.new(0, 140, 0, 64)
+        content.Size = UDim2.new(1, -140, 1, -64)
+        title.TextSize = 18
     else
-
-        Sidebar.Size = UDim2.new(0,190,1,-65)
-
-        Content.Position =
-            UDim2.fromOffset(190,65)
-
-        Content.Size =
-            UDim2.new(1,-190,1,-65)
-
-        Title.TextSize = 22
-
+        sidebar.Size = UDim2.new(0, 185, 1, -64)
+        content.Position = UDim2.new(0, 185, 0, 64)
+        content.Size = UDim2.new(1, -185, 1, -64)
+        title.TextSize = 22
     end
 end
 
-Main:GetPropertyChangedSignal("AbsoluteSize"):Connect(UpdateResponsive)
+main:GetPropertyChangedSignal("AbsoluteSize"):Connect(responsive)
+responsive()
 
-UpdateResponsive()
---==================================================
--- 🦊 xFOX HUB - PARTE 2
--- CONTROLES VISUALES
---==================================================
-
---==================================================
--- TOGGLE
---==================================================
-
-local function Toggle(Page, Text, Default)
-
-    local B = Instance.new("TextButton")
-    B.Parent = Page
-    B.Size = UDim2.new(1,0,0,62)
-    B.BackgroundColor3 = CardColor
-    B.Text = ""
-    B.BorderSizePixel = 0
-    B.AutoButtonColor = false
-
-    Corner(B,10)
-    Stroke(B)
-
-    local Label = Instance.new("TextLabel")
-    Label.Parent = B
-    Label.Position = UDim2.fromOffset(17,0)
-    Label.Size = UDim2.new(1,-105,1,0)
-    Label.BackgroundTransparency = 1
-    Label.Text = Text
-    Label.TextColor3 = TextColor
-    Label.TextSize = 14
-    Label.Font = Enum.Font.GothamMedium
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-
-    local State = Instance.new("TextLabel")
-    State.Parent = B
-    State.AnchorPoint = Vector2.new(1,0.5)
-    State.Position = UDim2.new(1,-12,0.5,0)
-    State.Size = UDim2.fromOffset(58,38)
-    State.BorderSizePixel = 0
-    State.TextSize = 12
-    State.Font = Enum.Font.GothamBold
-
-    Corner(State,8)
-
-    local Enabled = Default
-
-    local function Update()
-
-        State.Text = Enabled and "ON" or "OFF"
-
-        State.BackgroundColor3 =
-            Enabled
-            and Theme
-            or Color3.fromRGB(55,55,60)
-
-        State.TextColor3 =
-            Color3.fromRGB(255,255,255)
-
-    end
-
-    B.Activated:Connect(function()
-
-        Enabled = not Enabled
-
-        Update()
-
-    end)
-
-    Update()
-
-    return B
-end
-
---==================================================
--- SELECT
---==================================================
-
-local function Select(Page, Text, Values, Default)
-
-    local B = Instance.new("TextButton")
-    B.Parent = Page
-    B.Size = UDim2.new(1,0,0,62)
-    B.BackgroundColor3 = CardColor
-    B.Text = ""
-    B.BorderSizePixel = 0
-    B.AutoButtonColor = false
-
-    Corner(B,10)
-    Stroke(B)
-
-    local Label = Instance.new("TextLabel")
-    Label.Parent = B
-    Label.Position = UDim2.fromOffset(17,0)
-    Label.Size = UDim2.new(1,-145,1,0)
-    Label.BackgroundTransparency = 1
-    Label.Text = Text
-    Label.TextColor3 = TextColor
-    Label.TextSize = 14
-    Label.Font = Enum.Font.GothamMedium
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-
-    local Value = Instance.new("TextLabel")
-    Value.Parent = B
-    Value.AnchorPoint = Vector2.new(1,0.5)
-    Value.Position = UDim2.new(1,-12,0.5,0)
-    Value.Size = UDim2.fromOffset(105,38)
-    Value.BackgroundColor3 = Color3.fromRGB(40,40,45)
-    Value.TextColor3 = TextColor
-    Value.TextSize = 12
-    Value.Font = Enum.Font.GothamBold
-    Value.BorderSizePixel = 0
-
-    Corner(Value,8)
-
-    local Index = Default or 1
-
-    local function Update()
-
-        Value.Text = tostring(Values[Index])
-
-    end
-
-    B.Activated:Connect(function()
-
-        Index += 1
-
-        if Index > #Values then
-            Index = 1
-        end
-
-        Update()
-
-    end)
-
-    Update()
-
-    return B
-end
-
---==================================================
--- SLIDER / AJUSTE
---==================================================
-
-local function Slider(Page, Text, Default, Step, Min, Max)
-
-    local Holder = Instance.new("Frame")
-    Holder.Parent = Page
-    Holder.Size = UDim2.new(1,0,0,78)
-    Holder.BackgroundColor3 = CardColor
-    Holder.BorderSizePixel = 0
-
-    Corner(Holder,10)
-    Stroke(Holder)
-
-    local Label = Instance.new("TextLabel")
-    Label.Parent = Holder
-    Label.Position = UDim2.fromOffset(17,7)
-    Label.Size = UDim2.new(1,-34,0,25)
-    Label.BackgroundTransparency = 1
-    Label.Text = Text
-    Label.TextColor3 = TextColor
-    Label.TextSize = 14
-    Label.Font = Enum.Font.GothamMedium
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-
-    local Minus = Instance.new("TextButton")
-    Minus.Parent = Holder
-    Minus.Position = UDim2.fromOffset(12,40)
-    Minus.Size = UDim2.fromOffset(45,30)
-    Minus.BackgroundColor3 = Color3.fromRGB(45,45,51)
-    Minus.Text = "−"
-    Minus.TextColor3 = TextColor
-    Minus.TextSize = 18
-    Minus.Font = Enum.Font.GothamBold
-    Minus.BorderSizePixel = 0
-
-    Corner(Minus,7)
-
-    local Plus = Instance.new("TextButton")
-    Plus.Parent = Holder
-    Plus.AnchorPoint = Vector2.new(1,0)
-    Plus.Position = UDim2.new(1,-12,0,40)
-    Plus.Size = UDim2.fromOffset(45,30)
-    Plus.BackgroundColor3 = Color3.fromRGB(45,45,51)
-    Plus.Text = "+"
-    Plus.TextColor3 = TextColor
-    Plus.TextSize = 18
-    Plus.Font = Enum.Font.GothamBold
-    Plus.BorderSizePixel = 0
-
-    Corner(Plus,7)
-
-    local Value = Instance.new("TextLabel")
-    Value.Parent = Holder
-    Value.AnchorPoint = Vector2.new(0.5,0)
-    Value.Position = UDim2.new(0.5,0,0,40)
-    Value.Size = UDim2.fromOffset(90,30)
-    Value.BackgroundTransparency = 1
-    Value.TextColor3 = TextColor
-    Value.TextSize = 13
-    Value.Font = Enum.Font.GothamBold
-
-    local Number = Default
-
-    local function Update()
-
-        Number = math.clamp(Number,Min,Max)
-
-        Value.Text = string.format("%.2f",Number)
-
-    end
-
-    Minus.Activated:Connect(function()
-
-        Number -= Step
-        Update()
-
-    end)
-
-    Plus.Activated:Connect(function()
-
-        Number += Step
-        Update()
-
-    end)
-
-    Update()
-
-    return Holder
-end
-
---==================================================
--- SECTION TITLE
---==================================================
-
-local function Section(Page, Text)
-
-    local L = Instance.new("TextLabel")
-    L.Parent = Page
-    L.Size = UDim2.new(1,0,0,30)
-    L.BackgroundTransparency = 1
-    L.Text = "│  "..Text
-    L.TextColor3 = Theme
-    L.TextSize = 13
-    L.Font = Enum.Font.GothamBold
-    L.TextXAlignment = Enum.TextXAlignment.Left
-
-    return L
-end
-
---==================================================
--- 🎯 AIM ASSIST
---==================================================
-
-Section(AimPage,"AIM ASSIST")
-
-Toggle(
-    AimPage,
-    "Aim Assist",
-    false
-)
-
-Select(
-    AimPage,
-    "🎯 Objetivo",
-    {
-        "Cabeza",
-        "Pecho"
-    },
-    1
-)
-
-Slider(
-    AimPage,
-    "Suavidad",
-    0.18,
-    0.05,
-    0.05,
-    1
-)
-
-Slider(
-    AimPage,
-    "Predicción",
-    0.10,
-    0.05,
-    0,
-    1
-)
-
-Select(
-    AimPage,
-    "👥 Tipo de objetivo",
-    {
-        "Todos",
-        "Wanted",
-        "Police"
-    },
-    1
-)
-
-Slider(
-    AimPage,
-    "Distancia máxima",
-    500,
-    100,
-    100,
-    3500
-)
-
-Section(
-    AimPage,
-    "TECLADO"
-)
-
-Select(
-    AimPage,
-    "Aimbot Keybind",
-    {
-        "X",
-        "Q",
-        "E",
-        "V"
-    },
-    1
-)
-
---==================================================
--- 👁️ ESP
---==================================================
-
-Section(
-    ESPPage,
-    "ESP"
-)
-
-Toggle(
-    ESPPage,
-    "ESP",
-    false
-)
-
-Toggle(
-    ESPPage,
-    "Mostrar nombre",
-    true
-)
-
-Toggle(
-    ESPPage,
-    "Mostrar equipo",
-    true
-)
-
-Toggle(
-    ESPPage,
-    "Mostrar distancia",
-    true
-)
-
-Toggle(
-    ESPPage,
-    "Mostrar health",
-    true
-)
-
-Section(
-    ESPPage,
-    "DISTANCIA"
-)
-
-Slider(
-    ESPPage,
-    "Distancia máxima",
-    500,
-    100,
-    100,
-    3500
-)
---==================================================
--- 🦊 xFOX HUB - PARTE 3
--- LISTAS + MÓVIL + PC + CONFIG
---==================================================
-
---==================================================
--- 🛡️ WHITELIST / BLACKLIST
---==================================================
-
-Section(
-    ListsPage,
-    "PLAYER FILTER"
-)
-
-Toggle(
-    ListsPage,
-    "Whitelist",
-    false
-)
-
-Toggle(
-    ListsPage,
-    "Blacklist",
-    false
-)
-
-Section(
-    ListsPage,
-    "LISTAS"
-)
-
-local NameBox = Instance.new("TextBox")
-NameBox.Parent = ListsPage
-NameBox.Size = UDim2.new(1,0,0,55)
-NameBox.BackgroundColor3 = CardColor
-NameBox.PlaceholderText = "Escribe el nombre del jugador..."
-NameBox.PlaceholderColor3 = MutedColor
-NameBox.Text = ""
-NameBox.TextColor3 = TextColor
-NameBox.TextSize = 13
-NameBox.Font = Enum.Font.Gotham
-NameBox.ClearTextOnFocus = false
-NameBox.BorderSizePixel = 0
-
-Corner(NameBox,10)
-Stroke(NameBox)
-
-local Padding = Instance.new("UIPadding")
-Padding.Parent = NameBox
-Padding.PaddingLeft = UDim.new(0,15)
-Padding.PaddingRight = UDim.new(0,15)
-
-local White = Instance.new("TextButton")
-White.Parent = ListsPage
-White.Size = UDim2.new(1,0,0,52)
-White.BackgroundColor3 = Color3.fromRGB(40,95,65)
-White.Text = "✓  AÑADIR A WHITELIST"
-White.TextColor3 = TextColor
-White.TextSize = 13
-White.Font = Enum.Font.GothamBold
-White.BorderSizePixel = 0
-
-Corner(White,9)
-
-local Black = Instance.new("TextButton")
-Black.Parent = ListsPage
-Black.Size = UDim2.new(1,0,0,52)
-Black.BackgroundColor3 = Color3.fromRGB(105,45,45)
-Black.Text = "✕  AÑADIR A BLACKLIST"
-Black.TextColor3 = TextColor
-Black.TextSize = 13
-Black.Font = Enum.Font.GothamBold
-Black.BorderSizePixel = 0
-
-Corner(Black,9)
-
-local Status = Instance.new("TextLabel")
-Status.Parent = ListsPage
-Status.Size = UDim2.new(1,0,0,35)
-Status.BackgroundTransparency = 1
-Status.Text = "Demo visual — sin función real"
-Status.TextColor3 = MutedColor
-Status.TextSize = 11
-Status.Font = Enum.Font.Gotham
-
---==================================================
--- 📱 MÓVIL
---==================================================
-
-Section(
-    MobilePage,
-    "CONTROLES MÓVIL"
-)
-
-Toggle(
-    MobilePage,
-    "Botón Aim móvil",
-    true
-)
-
-Toggle(
-    MobilePage,
-    "Botón flotante",
-    true
-)
-
-Toggle(
-    MobilePage,
-    "Interfaz táctil",
-    true
-)
-
-Section(
-    MobilePage,
-    "PANTALLA"
-)
-
-Select(
-    MobilePage,
-    "Tamaño de interfaz",
-    {
-        "Pequeño",
-        "Normal",
-        "Grande"
-    },
-    2
-)
-
---==================================================
--- 🖥️ PC
---==================================================
-
-Section(
-    PCPage,
-    "CONTROLES PC"
-)
-
-Select(
-    PCPage,
-    "Tecla Aim Assist",
-    {
-        "X",
-        "Q",
-        "E",
-        "V"
-    },
-    1
-)
-
-Select(
-    PCPage,
-    "Tecla abrir/cerrar",
-    {
-        "RightShift",
-        "Insert",
-        "F4"
-    },
-    1
-)
-
---==================================================
--- ⚙️ CONFIGURACIÓN
---==================================================
-
-Section(
-    ConfigPage,
-    "CONFIGURACIÓN"
-)
-
-Select(
-    ConfigPage,
-    "Tema",
-    {
-        "Naranja",
-        "Rojo",
-        "Azul",
-        "Morado"
-    },
-    1
-)
-
-Toggle(
-    ConfigPage,
-    "Animaciones",
-    true
-)
-
-Toggle(
-    ConfigPage,
-    "Interfaz compacta",
-    false
-)
-
---==================================================
--- NAVEGACIÓN
---==================================================
-
-local function ShowPage(Page, Title)
-
-    for _,P in pairs(Pages) do
-        P.Visible = false
-    end
-
-    Page.Visible = true
-    ContentTitle.Text = "│  "..Title
-
-    if CurrentButton then
-
-        CurrentButton.BackgroundColor3 =
-            SidebarColor
-
-        CurrentButton.TextColor3 =
-            MutedColor
-
-    end
-end
-
-local function NavigationButton(Text, Page, Title)
-
-    local B = SideButton(Text)
-
-    B.Activated:Connect(function()
-
-        ShowPage(Page,Title)
-
-        B.BackgroundColor3 =
-            Color3.fromRGB(38,38,43)
-
-        B.TextColor3 =
-            Theme
-
-        CurrentButton = B
-
-    end)
-
-    return B
-end
-
---==================================================
--- MENÚ LATERAL
---==================================================
-
-Category("COMBAT")
-
-local AimButton =
-    NavigationButton(
-        "◉   Aimbot",
-        AimPage,
-        "🎯 AIM ASSIST"
-    )
-
-NavigationButton(
-    "◎   Silent Aim",
-    AimPage,
-    "🎯 AIM ASSIST"
-)
-
-NavigationButton(
-    "◇   Gun Mod",
-    AimPage,
-    "🎯 AIM ASSIST"
-)
-
-Category("UTILITY")
-
-NavigationButton(
-    "♙   ESP",
-    ESPPage,
-    "👁️ ESP"
-)
-
-NavigationButton(
-    "✓   Whitelist",
-    ListsPage,
-    "🛡️ WHITELIST / BLACKLIST"
-)
-
-NavigationButton(
-    "✕   Blacklist",
-    ListsPage,
-    "🛡️ WHITELIST / BLACKLIST"
-)
-
-NavigationButton(
-    "📱   Móvil",
-    MobilePage,
-    "📱 CONTROLES MÓVIL"
-)
-
-NavigationButton(
-    "🖥️   PC",
-    PCPage,
-    "🖥️ CONTROLES PC"
-)
-
-Category("SYSTEM")
-
-NavigationButton(
-    "⚙   Configuración",
-    ConfigPage,
-    "⚙️ CONFIGURACIÓN"
-)
-
---==================================================
--- AIM SELECCIONADO AL INICIO
---==================================================
-
-AimButton.BackgroundColor3 =
-    Color3.fromRGB(38,38,43)
-
-AimButton.TextColor3 =
-    Theme
-
-CurrentButton = AimButton
-
---==================================================
--- RESPONSIVE FINAL
---==================================================
-
-local function MobileAdjust()
-
-    local Width =
-        Main.AbsoluteSize.X
-
-    if Width < 600 then
-
-        for _,Object in ipairs(
-            Content:GetDescendants()
-        ) do
-
-            if Object:IsA("TextLabel")
-                or Object:IsA("TextButton")
-                or Object:IsA("TextBox") then
-
-                if Object.TextSize > 16 then
-                    Object.TextSize = 15
-                end
-
-            end
-
-        end
-
-    end
-end
-
-Main:GetPropertyChangedSignal(
-    "AbsoluteSize"
-):Connect(MobileAdjust)
-
-MobileAdjust()
-
---==================================================
--- FIN
---==================================================
-
-print("🦊 xFOX HUB - DEMO RESPONSIVE CARGADA")
-print("📱 Diseñado para adaptarse a 1080x2400")
-print("🎯 Predicción y suavidad ajustables visualmente")
+print("xFOX HUB: DEMO CARGADA CORRECTAMENTE")
