@@ -135,14 +135,19 @@ end
 
 local function IsValidTeam(Player)
 
-	if Settings.TargetTeam == "Todos" then
-		return true
-	end
+    if Settings.TargetTeam == "All" then
+        return true
+    end
 
-	local TeamName = string.lower(GetTeamName(Player))
-	local Target = string.lower(Settings.TargetTeam)
+    if Settings.TargetTeam == "Wanted" then
+        return Player:GetAttribute("Wanted") == true
+    end
 
-	return string.find(TeamName,Target,1,true) ~= nil
+    if Settings.TargetTeam == "Police" then
+        return GetTeamName(Player) == "Police"
+    end
+
+    return false
 end
 
 --==================================================
@@ -821,10 +826,9 @@ local TeamButton =
 	Button("Objetivo: TODOS")
 
 local TeamModes = {
-	"Todos",
-	"Civil",
-	"Criminal",
-	"Police"
+    "Wanted",
+    "Police",
+    "All"
 }
 
 local TeamIndex = 1
