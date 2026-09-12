@@ -823,15 +823,17 @@ Slider(
 --==================================================
 
 local TeamButton =
-	Button("Objetivo: TODOS")
+	Button("Objetivo: All")
 
 local TeamModes = {
-    "Wanted",
-    "Police",
-    "All"
+	"All",
+	"Wanted",
+	"Police"
 }
 
 local TeamIndex = 1
+
+Settings.TargetTeam = TeamModes[TeamIndex]
 
 TeamButton.Activated:Connect(function()
 
