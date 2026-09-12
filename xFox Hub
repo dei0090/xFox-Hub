@@ -515,6 +515,7 @@ local function UpdateToggle(B, Label, Enabled)
             Color3.fromRGB(180,180,185)
 
     end
+end
 
 --==================================================
 -- 🎯 AIM ASSIST
