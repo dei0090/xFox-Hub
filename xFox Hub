@@ -359,19 +359,86 @@ end
 
 local function Button(Text)
 
-	local B = Instance.new("TextButton")
-	B.Size = UDim2.new(1,0,0,42)
-	B.BackgroundColor3 = Color3.fromRGB(42,42,48)
-	B.Text = Text
-	B.TextColor3 = Color3.new(1,1,1)
-	B.TextSize = 14
-	B.Font = Enum.Font.GothamBold
-	B.AutoButtonColor = false
-	B.Parent = Scroll
+    local B = Instance.new("TextButton")
 
-	AddCorner(B,9)
+    B.Size =
+        UDim2.new(1,0,0,44)
 
-	return B
+    B.BackgroundColor3 =
+        Color3.fromRGB(30,30,37)
+
+    B.BackgroundTransparency = 0.05
+
+    B.Text = Text
+    B.TextColor3 =
+        Color3.fromRGB(235,235,240)
+
+    B.TextSize = 14
+
+    B.Font =
+        Enum.Font.GothamMedium
+
+    B.AutoButtonColor = false
+
+    B.BorderSizePixel = 0
+
+    B.Parent = Scroll
+
+    AddCorner(B,10)
+
+    local Stroke =
+        Instance.new("UIStroke")
+
+    Stroke.Thickness = 1
+    Stroke.Color =
+        Color3.fromRGB(65,65,75)
+
+    Stroke.Transparency = 0.25
+    Stroke.Parent = B
+
+    B.MouseEnter:Connect(function()
+
+        B.BackgroundColor3 =
+            Color3.fromRGB(42,42,50)
+
+        Stroke.Color =
+            Settings.Theme
+
+        Stroke.Transparency = 0
+
+    end)
+
+    B.MouseLeave:Connect(function()
+
+        B.BackgroundColor3 =
+            Color3.fromRGB(30,30,37)
+
+        Stroke.Color =
+            Color3.fromRGB(65,65,75)
+
+        Stroke.Transparency = 0.25
+
+    end)
+
+    B.Activated:Connect(function()
+
+        B.BackgroundColor3 =
+            Darken(Settings.Theme,0.35)
+
+        task.delay(0.12,function()
+
+            if B then
+
+                B.BackgroundColor3 =
+                    Color3.fromRGB(30,30,37)
+
+            end
+
+        end)
+
+    end)
+
+    return B
 end
 
 local function UpdateToggle(B, Label, Enabled)
