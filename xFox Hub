@@ -157,25 +157,52 @@ end
 --==================================================
 
 local FloatingButton = Instance.new("TextButton")
+
 FloatingButton.Name = "FloatingButton"
-FloatingButton.Size = UDim2.fromOffset(60,60)
-FloatingButton.Position = UDim2.new(0,18,0.5,-30)
-FloatingButton.BackgroundColor3 = Settings.Theme
+
+FloatingButton.Size =
+    UDim2.fromOffset(58,58)
+
+FloatingButton.Position =
+    UDim2.new(0,18,0.5,-29)
+
+FloatingButton.BackgroundColor3 =
+    Color3.fromRGB(25,25,32)
+
+FloatingButton.BackgroundTransparency = 0.05
+
 FloatingButton.Text = "🦊"
-FloatingButton.TextSize = 26
-FloatingButton.TextColor3 = Color3.new(1,1,1)
-FloatingButton.Font = Enum.Font.GothamBold
+
+FloatingButton.TextSize = 25
+
+FloatingButton.TextColor3 =
+    Color3.new(1,1,1)
+
+FloatingButton.Font =
+    Enum.Font.GothamBold
+
 FloatingButton.AutoButtonColor = false
+
+FloatingButton.BorderSizePixel = 0
+
 FloatingButton.ZIndex = 50
+
 FloatingButton.Parent = Gui
 
-AddCorner(FloatingButton,30)
+AddCorner(FloatingButton,29)
 
-local FloatingStroke = Instance.new("UIStroke")
-FloatingStroke.Thickness = 2
-FloatingStroke.Color = Color3.new(1,1,1)
-FloatingStroke.Transparency = 0.5
-FloatingStroke.Parent = FloatingButton
+local FloatingStroke =
+    Instance.new("UIStroke")
+
+FloatingStroke.Thickness = 1.5
+
+FloatingStroke.Color =
+    Settings.Theme
+
+FloatingStroke.Transparency = 0.15
+
+FloatingStroke.Parent =
+    FloatingButton
 
 --==================================================
 -- MENÚ
