@@ -11,6 +11,7 @@ local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local Camera = workspace.CurrentCamera
+print("🦊 xFOX HUB: INICIANDO")
 
 --==================================================
 -- CONFIG
