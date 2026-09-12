@@ -443,16 +443,28 @@ end
 
 local function UpdateToggle(B, Label, Enabled)
 
-	B.Text =
-		Label
-		.."     •     "
-		..(Enabled and "ON" or "OFF")
+    B.Text =
+        Label
+        .. "     •     "
+        .. (Enabled and "ON" or "OFF")
 
-	B.BackgroundColor3 =
-		Enabled
-		and Settings.Theme
-		or Color3.fromRGB(42,42,48)
-end
+    if Enabled then
+
+        B.BackgroundColor3 =
+            Settings.Theme
+
+        B.TextColor3 =
+            Color3.new(1,1,1)
+
+    else
+
+        B.BackgroundColor3 =
+            Color3.fromRGB(30,30,37)
+
+        B.TextColor3 =
+            Color3.fromRGB(180,180,185)
+
+    end
 
 --==================================================
 -- 🎯 AIM ASSIST
