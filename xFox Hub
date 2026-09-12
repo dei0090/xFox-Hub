@@ -20,6 +20,8 @@ local Settings = {
 	AimEnabled = false,
 	ESP = false,
 
+    MaxDistance = 500,
+
 	ShowName = true,
 	ShowTeam = true,
 	ShowDistance = true,
@@ -852,6 +854,40 @@ TeamButton.Activated:Connect(function()
 end)
 
 --==================================================
+-- 📏 DISTANCIA MÁXIMA
+--==================================================
+
+local MaxDistanceButton =
+    Button("Distancia: 500")
+
+local DistanceModes = {
+    500,
+    1000,
+    3500
+}
+
+local DistanceIndex = 1
+
+Settings.MaxDistance =
+    DistanceModes[DistanceIndex]
+
+MaxDistanceButton.Activated:Connect(function()
+
+    DistanceIndex += 1
+
+    if DistanceIndex > #DistanceModes then
+        DistanceIndex = 1
+    end
+
+    Settings.MaxDistance =
+        DistanceModes[DistanceIndex]
+
+    MaxDistanceButton.Text =
+        "Distancia: "
+        .. Settings.MaxDistance
+end)
+
+--==================================================
 -- 👁️ ESP
 --==================================================
 
@@ -1086,9 +1122,26 @@ RunService.RenderStepped:Connect(function()
 
 			if Billboard then
 
-				Billboard.Enabled =
-					Settings.ESP
+    local MyCharacter =
+        LocalPlayer.Character
 
+    local MyRoot =
+        MyCharacter
+        and MyCharacter:FindFirstChild("HumanoidRootPart")
+
+    local InRange = false
+
+    if MyRoot and Root then
+
+        local Distance =
+            (MyRoot.Position - Root.Position).Magnitude
+
+        InRange =
+            Distance <= Settings.MaxDistance
+    end
+
+    Billboard.Enabled =
+        Settings.ESP and InRange
 				local Text =
 					Billboard:FindFirstChild(
 						"Info"
