@@ -194,9 +194,18 @@ Main.Parent = Gui
 AddCorner(Main,14)
 
 local MainStroke = Instance.new("UIStroke")
-MainStroke.Thickness = 2
+MainStroke.Thickness = 1.5
 MainStroke.Color = Settings.Theme
+MainStroke.Transparency = 0.15
 MainStroke.Parent = Main
+
+local MainGradient = Instance.new("UIGradient")
+MainGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(24,24,30)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(12,12,16))
+})
+MainGradient.Rotation = 90
+MainGradient.Parent = Main
 
 FloatingButton.Activated:Connect(function()
 	Main.Visible = not Main.Visible
