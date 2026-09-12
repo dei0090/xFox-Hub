@@ -126,6 +126,25 @@ end
 
 local currentButton
 
+local Settings = {
+    AimAssist = false,
+    TargetPart = "Cabeza",
+    Smoothing = 0.18,
+    Prediction = 0.10,
+    TargetType = "Todos",
+    AimDistance = 500,
+    AimKey = "X",
+    ESP = false,
+    ESPName = true,
+    ESPTeam = true,
+    ESPDistance = true,
+    ESPHealth = true,
+    ESPDistanceMax = 500,
+    Whitelist = false,
+    Blacklist = false
+}
+
+
 -- Content
 local content = Instance.new("Frame")
 content.Parent = main
@@ -193,7 +212,7 @@ local function section(page, text)
     l.TextXAlignment = Enum.TextXAlignment.Left
 end
 
-local function toggle(page, text, default)
+local function toggle(page, text, default, settingName)
     local b = Instance.new("TextButton")
     b.Parent = page
     b.Size = UDim2.new(1, 0, 0, 56)
@@ -231,6 +250,9 @@ local function toggle(page, text, default)
     local function update()
         state.Text = enabled and "ON" or "OFF"
         state.BackgroundColor3 = enabled and ORANGE or Color3.fromRGB(55, 55, 60)
+        if settingName then
+            Settings[settingName] = enabled
+        end
     end
 
     b.Activated:Connect(function()
@@ -239,9 +261,10 @@ local function toggle(page, text, default)
     end)
 
     update()
+    return b
 end
 
-local function select(page, text, values, default)
+local function select(page, text, values, default, settingName)
     local b = Instance.new("TextButton")
     b.Parent = page
     b.Size = UDim2.new(1, 0, 0, 56)
@@ -279,6 +302,9 @@ local function select(page, text, values, default)
 
     local function update()
         value.Text = tostring(values[index])
+        if settingName then
+            Settings[settingName] = values[index]
+        end
     end
 
     b.Activated:Connect(function()
@@ -290,9 +316,10 @@ local function select(page, text, values, default)
     end)
 
     update()
+    return b
 end
 
-local function slider(page, text, default, step, min, max)
+local function slider(page, text, default, step, min, max, settingName)
     local holder = Instance.new("Frame")
     holder.Parent = page
     holder.Size = UDim2.new(1, 0, 0, 72)
@@ -352,6 +379,9 @@ local function slider(page, text, default, step, min, max)
     local function update()
         number = math.clamp(number, min, max)
         value.Text = string.format("%.2f", number)
+        if settingName then
+            Settings[settingName] = number
+        end
     end
 
     minus.Activated:Connect(function()
@@ -365,31 +395,32 @@ local function slider(page, text, default, step, min, max)
     end)
 
     update()
+    return holder
 end
 
 -- AIM
 section(aim, "AIM ASSIST")
-toggle(aim, "Aim Assist", false)
-select(aim, "Objetivo", {"Cabeza", "Pecho"}, 1)
-slider(aim, "Suavidad", 0.18, 0.05, 0.05, 1)
-slider(aim, "Prediccion", 0.10, 0.05, 0, 1)
-select(aim, "Tipo de objetivo", {"Todos", "Wanted", "Police"}, 1)
-slider(aim, "Distancia maxima", 500, 100, 100, 3500)
-select(aim, "Aimbot Keybind", {"X", "Q", "E", "V"}, 1)
+toggle(aim, "Aim Assist", false, "AimAssist")
+select(aim, "Objetivo", {"Cabeza", "Pecho"}, 1, "TargetPart")
+slider(aim, "Suavidad", 0.18, 0.05, 0.05, 1, "Smoothing")
+slider(aim, "Prediccion", 0.10, 0.05, 0, 1, "Prediction")
+select(aim, "Tipo de objetivo", {"Todos", "Wanted", "Police"}, 1, "TargetType")
+slider(aim, "Distancia maxima", 500, 100, 100, 3500, "AimDistance")
+select(aim, "Aimbot Keybind", {"X", "Q", "E", "V"}, 1, "AimKey")
 
 -- ESP
 section(esp, "ESP")
-toggle(esp, "ESP", false)
-toggle(esp, "Mostrar nombre", true)
-toggle(esp, "Mostrar equipo", true)
-toggle(esp, "Mostrar distancia", true)
-toggle(esp, "Mostrar health", true)
-slider(esp, "Distancia maxima", 500, 100, 100, 3500)
+toggle(esp, "ESP", false, "ESP")
+toggle(esp, "Mostrar nombre", true, "ESPName")
+toggle(esp, "Mostrar equipo", true, "ESPTeam")
+toggle(esp, "Mostrar distancia", true, "ESPDistance")
+toggle(esp, "Mostrar health", true, "ESPHealth")
+slider(esp, "Distancia maxima", 500, 100, 100, 3500, "ESPDistanceMax")
 
 -- LISTS
 section(lists, "PLAYER FILTER")
-toggle(lists, "Whitelist", false)
-toggle(lists, "Blacklist", false)
+toggle(lists, "Whitelist", false, "Whitelist")
+toggle(lists, "Blacklist", false, "Blacklist")
 
 local box = Instance.new("TextBox")
 box.Parent = lists
