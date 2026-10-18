@@ -1337,7 +1337,11 @@ RunService.RenderStepped:Connect(function()
                         ToolLabel.TextColor3 =
                             Color3.new(1, 1, 1)
                     end
-                endMyCharacter:FindFirstChild("HumanoidRootPart")
+                end
+
+local MyRoot =
+    MyCharacter
+    and MyCharacter:FindFirstChild("HumanoidRootPart")
 
     local InRange = false
 
