@@ -1080,7 +1080,121 @@ NameButton.Activated:Connect(function()
 
 end)
 
-TeamInfoButton.Activated:Connect(function()
+TeamInfoButton.Activated:C--==================================================
+-- ESP CREATION
+--==================================================
+
+local function CreateESP(Player)
+
+    if Player == LocalPlayer then
+        return
+    end
+
+    local function CharacterAdded(Character)
+
+        local Old =
+            Character:FindFirstChild(
+                "xFoxESP"
+            )
+
+        if Old then
+            Old:Destroy()
+        end
+
+        local Billboard =
+            Instance.new("BillboardGui")
+
+        Billboard.Name =
+            "xFoxESP"
+
+        Billboard.Size =
+            UDim2.fromOffset(210,100)
+
+        Billboard.StudsOffset =
+            Vector3.new(0,3,0)
+
+        Billboard.AlwaysOnTop = true
+        Billboard.Enabled =
+            Settings.ESP
+
+        Billboard.Parent =
+            Character
+
+        local Text =
+            Instance.new("TextLabel")
+
+        Text.Name = "Info"
+
+        Text.Size =
+            UDim2.new(1,0,1,-18)
+
+        Text.BackgroundTransparency = 1
+
+        Text.TextColor3 =
+            Color3.new(1,1,1)
+
+        Text.TextStrokeTransparency =
+            0.2
+
+        Text.TextSize = 13
+
+        Text.Font =
+            Enum.Font.GothamBold
+
+        Text.TextWrapped = true
+
+        Text.Parent = Billboard
+
+        -- HEALTH ÚNICO
+        local HealthLabel =
+            Instance.new("TextLabel")
+
+        HealthLabel.Name =
+            "Health"
+
+        HealthLabel.Size =
+            UDim2.new(1,0,0,18)
+
+        HealthLabel.Position =
+            UDim2.new(0,0,1,-18)
+
+        HealthLabel.BackgroundTransparency = 1
+
+        HealthLabel.TextColor3 =
+            Color3.fromRGB(50,255,80)
+
+        HealthLabel.TextStrokeTransparency =
+            0.2
+
+        HealthLabel.TextSize = 12
+
+        HealthLabel.Font =
+            Enum.Font.GothamBold
+
+        HealthLabel.Parent =
+            Billboard
+    end
+
+    if Player.Character then
+        CharacterAdded(Player.Character)
+    end
+
+    Player.CharacterAdded:Connect(
+        CharacterAdded
+    )
+end
+
+for _,Player in ipairs(
+    Players:GetPlayers()
+) do
+
+    CreateESP(Player)
+
+end
+
+Players.PlayerAdded:Connect(
+    CreateESP
+)onnect(function()
 
 	Settings.ShowTeam =
 		not Settings.ShowTeam
@@ -1094,66 +1208,6 @@ TeamInfoButton.Activated:Connect(function()
 end)
 
 DistanceButton.Activated:Connect(function()
---==================================================
--- ESP CREATION
---==================================================
-
-local function CreateESP(Player)
-
-    if Player == LocalPlayer then
-        return
-    end
-
-    local function CharacterAdded(Character)
-
-        local Old = Character:FindFirstChild("xFoxESP")
-        if Old then
-            Old:Destroy()
-        end
-
-        local Billboard = Instance.new("BillboardGui")
-        Billboard.Name = "xFoxESP"
-        Billboard.Size = UDim2.fromOffset(220, 95)
-        Billboard.StudsOffset = Vector3.new(0, 3, 0)
-        Billboard.AlwaysOnTop = true
-        Billboard.Enabled = Settings.ESP
-        Billboard.Parent = Character
-
-        local function MakeLabel(Name, Height, PositionY, Color, Size)
-
-            local Label = Instance.new("TextLabel")
-            Label.Name = Name
-            Label.Size = UDim2.new(1, 0, 0, Height)
-            Label.Position = UDim2.new(0, 0, 0, PositionY)
-            Label.BackgroundTransparency = 1
-            Label.TextColor3 = Color
-            Label.TextStrokeTransparency = 0.2
-            Label.TextSize = Size
-            Label.Font = Enum.Font.GothamBold
-            Label.TextWrapped = true
-            Label.Parent = Billboard
-
-            return Label
-        end
-
-        MakeLabel("Info", 20, 0, Color3.new(1, 1, 1), 13)
-        MakeLabel("Status", 20, 20, Color3.new(1, 1, 1), 12)
-        MakeLabel("Tool", 20, 40, Color3.new(1, 1, 1), 12)
-        MakeLabel("Health", 18, 60, Color3.fromRGB(50, 255, 80), 12)
-    end
-
-    if Player.Character then
-        CharacterAdded(Player.Character)
-    end
-
-    Player.CharacterAdded:Connect(CharacterAdded)
-end
-
-for _, Player in ipairs(Players:GetPlayers()) do
-    CreateESP(Player)
-end
-
-Players.PlayerAdded:Connect(CreateESP)
 
 --==================================================
 -- ESP UPDATE
@@ -1299,65 +1353,6 @@ RunService.RenderStepped:Connect(function()
                             Settings.ShowTeam
 
                         StatusLabel.Text = Status
-                        StatusLabel.TextColor3 =
-                            StatusColor
-                    end
-
-                    -- HERRAMIENTA EQUIPADA
-                    if ToolLabel then
-
-                        local Tool =
-                            Character:FindFirstChildOfClass("Tool")
-
-                        ToolLabel.Visible = Tool ~= nil
-
-                        if Tool then
-                            ToolLabel.Text =
-                                "[" .. Tool.Name .. "]"
-                        else
-                            ToolLabel.Text = ""
-                        end
-
-                        ToolLabel.TextColor3 =
-                            Color3.new(1, 1, 1)
-                    end
-                endMyCharacter:FindFirstChild("HumanoidRootPart")
-
-    local InRange = false
-
-    if MyRoot and Root then
-
-        local Distance =
-            (MyRoot.Position - Root.Position).Magnitude
-
-        InRange =
-            Distance <= Settings.MaxDistance
-    end
-
-    Billboard.Enabled =
-        Settings.ESP and InRange
-				
-
-				if HealthLabel
-					and Humanoid then
-
-					HealthLabel.Visible =
-						Settings.ShowHealth
-
-					HealthLabel.Text =
-						"Health: "
-						..math.floor(
-							Humanoid.Health
-						)
-						.."/"
-						..math.floor(
-							Humanoid.MaxHealth
-						)
-				end
-			end
-		end
-	end
-end)
 
 --==================================================
 -- 👤 PLAYER LISTS + AUTOCOMPLETADO
@@ -1372,7 +1367,135 @@ NameBox.Size =
 	UDim2.new(1,0,0,40)
 
 NameBox.BackgroundColor3 =
-	Color3.fromRGB(38,38,44)
+	Color3.fr--==================================================
+-- ESP UPDATE
+--==================================================
+
+RunService.RenderStepped:Connect(function()
+
+    for _,Player in ipairs(
+        Players:GetPlayers()
+    ) do
+
+        if Player ~= LocalPlayer
+            and Player.Character then
+
+            local Character =
+                Player.Character
+
+            local Root =
+                Character:FindFirstChild(
+                    "HumanoidRootPart"
+                )
+
+            local Humanoid =
+                Character:FindFirstChildOfClass(
+                    "Humanoid"
+                )
+
+            local Billboard =
+                Character:FindFirstChild(
+                    "xFoxESP"
+                )
+
+            if Billboard then
+
+                Billboard.Enabled =
+                    Settings.ESP
+
+                local Text =
+                    Billboard:FindFirstChild(
+                        "Info"
+                    )
+
+                local HealthLabel =
+                    Billboard:FindFirstChild(
+                        "Health"
+                    )
+
+                if Text and Humanoid then
+
+                    local Info = {}
+
+                    if Settings.ShowName then
+
+                        table.insert(
+                            Info,
+                            Player.DisplayName
+                        )
+
+                    end
+
+                    if Settings.ShowTeam then
+
+                        table.insert(
+                            Info,
+                            "Team: "
+                            ..GetTeamName(Player)
+                        )
+
+                    end
+
+                    if Settings.ShowDistance
+                        and Root then
+
+                        local MyCharacter =
+                            LocalPlayer.Character
+
+                        local MyRoot =
+                            MyCharacter
+                            and MyCharacter:FindFirstChild(
+                                "HumanoidRootPart"
+                            )
+
+                        if MyRoot then
+
+                            local Distance =
+                                math.floor(
+                                    (
+                                        MyRoot.Position
+                                        - Root.Position
+                                    ).Magnitude
+                                )
+
+                            table.insert(
+                                Info,
+                                Distance
+                                .." studs"
+                            )
+                        end
+                    end
+
+                    Text.Text =
+                        table.concat(
+                            Info,
+                            "\n"
+                        )
+
+                    Text.TextColor3 =
+                        GetTeamColor(Player)
+                end
+
+                if HealthLabel
+                    and Humanoid then
+
+                    HealthLabel.Visible =
+                        Settings.ShowHealth
+
+                    HealthLabel.Text =
+                        "Health: "
+                        ..math.floor(
+                            Humanoid.Health
+                        )
+                        .."/"
+                        ..math.floor(
+                            Humanoid.MaxHealth
+                        )
+                end
+            end
+        end
+    end
+end)omRGB(38,38,44)
 
 NameBox.TextColor3 =
 	Color3.new(1,1,1)
