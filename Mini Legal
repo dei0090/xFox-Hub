@@ -136,14 +136,41 @@ local function IsWhitelisted(Player)
 	return Whitelist[Player.UserId] == true
 end
 
-local function IsValidTeam(Player)
+local function IsWantedPlayer(Player)
+    if Player:GetAttribute("IsWanted") == true then
+        return true
+    end
 
+    local Character = Player.Character
+
+    if Character and Character:GetAttribute("IsWanted") == true then
+        return true
+    end
+
+    local Flag = Player:FindFirstChild("IsWanted")
+
+    if Flag and Flag:IsA("BoolValue") and Flag.Value then
+        return true
+    end
+
+    if Character then
+        Flag = Character:FindFirstChild("IsWanted")
+
+        if Flag and Flag:IsA("BoolValue") and Flag.Value then
+            return true
+        end
+    end
+
+    return false
+end
+
+local function IsValidTeam(Player)
     if Settings.TargetTeam == "All" then
         return true
     end
 
     if Settings.TargetTeam == "Wanted" then
-        return Player:GetAttribute("IsWanted") == true
+        return IsWantedPlayer(Player)
     end
 
     if Settings.TargetTeam == "Police" then
