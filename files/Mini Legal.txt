@@ -1,0 +1,1894 @@
+--==================================================
+-- 🦊 xFOX HUB
+-- AIM ASSIST + ESP + WHITELIST/BLACKLIST
+-- PC + MÓVIL
+--==================================================
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local Camera = workspace.CurrentCamera
+print("🦊 xFOX HUB: INICIANDO")
+
+--==================================================
+-- CONFIG
+--==================================================
+
+local Settings = {
+	AimEnabled = false,
+	ESP = false,
+
+    MaxDistance = 500,
+
+	ShowName = true,
+	ShowTeam = true,
+	ShowDistance = true,
+	ShowHealth = true,
+
+	Smoothness = 0.18,
+	Prediction = 0.10,
+    AimPart= "Cabeza",
+
+	TargetTeam = "Todos",
+
+	Theme = Color3.fromRGB(255,120,35)
+}
+
+local Whitelist = {}
+local Blacklist = {}
+
+--==================================================
+-- GUI LIMPIA
+--==================================================
+
+local OldGui = PlayerGui:FindFirstChild("xFOX_HUB")
+
+if OldGui then
+	OldGui:Destroy()
+end
+
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "xFOX_HUB"
+Gui.ResetOnSpawn = false
+Gui.IgnoreGuiInset = true
+Gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Gui.Parent = PlayerGui
+
+--==================================================
+-- UTILIDADES
+--==================================================
+
+local function AddCorner(Object, Radius)
+	local Corner = Instance.new("UICorner")
+	Corner.CornerRadius = UDim.new(0, Radius)
+	Corner.Parent = Object
+	return Corner
+end
+
+local function Darken(Color, Amount)
+	return Color3.new(
+		math.clamp(Color.R - Amount, 0, 1),
+		math.clamp(Color.G - Amount, 0, 1),
+		math.clamp(Color.B - Amount, 0, 1)
+	)
+end
+
+--==================================================
+-- TEAM NAME
+--==================================================
+
+local function GetTeamName(Player)
+
+	if Player.Team then
+		return Player.Team.Name
+	end
+
+	local Attribute = Player:GetAttribute("Team")
+
+	if Attribute then
+		return tostring(Attribute)
+	end
+
+	return "Sin equipo"
+end
+
+--==================================================
+-- TEAM COLOR
+--==================================================
+
+local function GetTeamColor(Player)
+
+	local TeamName = string.lower(GetTeamName(Player))
+
+	if string.find(TeamName,"police")
+		or string.find(TeamName,"polic") then
+
+		return Color3.fromRGB(60,130,255)
+	end
+
+	if string.find(TeamName,"criminal")
+		or string.find(TeamName,"criminales") then
+
+		return Color3.fromRGB(255,60,60)
+	end
+
+	if string.find(TeamName,"civil") then
+		return Color3.fromRGB(180,180,180)
+	end
+
+	return Color3.fromRGB(255,255,255)
+end
+
+--==================================================
+-- PLAYER FILTER
+--==================================================
+
+local function IsBlacklisted(Player)
+
+	return Blacklist[Player.UserId] == true
+end
+
+local function IsWhitelisted(Player)
+
+	return Whitelist[Player.UserId] == true
+end
+
+local function IsValidTeam(Player)
+
+    if Settings.TargetTeam == "All"
+        or Settings.TargetTeam == "Todos" then
+        return true
+    end
+
+    if Settings.TargetTeam == "Wanted" then
+        local Character = Player.Character
+        local Root = Character
+            and Character:FindFirstChild("HumanoidRootPart")
+
+        return Root ~= nil
+            and Root:GetAttribute("IsWanted") == true
+    end
+
+    if Settings.TargetTeam == "Police" then
+        return GetTeamName(Player) == "Police"
+    end
+
+    return false
+end
+
+--==================================================
+-- 🦊 BOTÓN FLOTANTE
+--==================================================
+
+local FloatingButton = Instance.new("TextButton")
+
+FloatingButton.Name = "FloatingButton"
+
+FloatingButton.Size =
+    UDim2.fromOffset(58,58)
+
+FloatingButton.Position =
+    UDim2.new(0,18,0.5,-29)
+
+FloatingButton.BackgroundColor3 =
+    Color3.fromRGB(25,25,32)
+
+FloatingButton.BackgroundTransparency = 0.05
+
+FloatingButton.Text = "🦊"
+
+FloatingButton.TextSize = 25
+
+FloatingButton.TextColor3 =
+    Color3.new(1,1,1)
+
+FloatingButton.Font =
+    Enum.Font.GothamBold
+
+FloatingButton.AutoButtonColor = false
+
+FloatingButton.BorderSizePixel = 0
+
+FloatingButton.ZIndex = 50
+
+FloatingButton.Parent = Gui
+
+AddCorner(FloatingButton,29)
+
+local FloatingStroke =
+    Instance.new("UIStroke")
+
+FloatingStroke.Thickness = 1.5
+
+FloatingStroke.Color =
+    Settings.Theme
+
+FloatingStroke.Transparency = 0.15
+
+FloatingStroke.Parent =
+    FloatingButton
+
+--==================================================
+-- MENÚ
+--==================================================
+
+local Main = Instance.new("Frame")
+Main.Name = "Main"
+Main.Size = UDim2.fromOffset(370,520)
+Main.Position = UDim2.new(0.5,-185,0.5,-260)
+Main.BackgroundColor3 = Color3.fromRGB(20,20,25)
+Main.BorderSizePixel = 0
+Main.Visible = true
+Main.ZIndex = 10
+Main.Parent = Gui
+
+AddCorner(Main,14)
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Thickness = 1.5
+MainStroke.Color = Settings.Theme
+MainStroke.Transparency = 0.15
+MainStroke.Parent = Main
+
+local MainGradient = Instance.new("UIGradient")
+MainGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(24,24,30)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(12,12,16))
+})
+MainGradient.Rotation = 90
+MainGradient.Parent = Main
+
+FloatingButton.Activated:Connect(function()
+	Main.Visible = not Main.Visible
+end)
+UserInputService.InputBegan:Connect(function(Input, Processed)
+    if Processed then
+        return
+    end
+
+    if Input.KeyCode == Enum.KeyCode.M then
+        Main.Visible = not Main.Visible
+    end
+end)
+
+--==================================================
+-- HEADER
+--==================================================
+
+local Header = Instance.new("Frame")
+
+Header.Size =
+    UDim2.new(1,0,0,65)
+
+Header.BackgroundColor3 =
+    Color3.fromRGB(25,25,32)
+
+Header.BackgroundTransparency = 0.05
+
+Header.BorderSizePixel = 0
+
+Header.ZIndex = 11
+
+Header.Parent = Main
+
+AddCorner(Header,14)
+
+local HeaderStroke =
+    Instance.new("UIStroke")
+
+HeaderStroke.Thickness = 1
+
+HeaderStroke.Color =
+    Settings.Theme
+
+HeaderStroke.Transparency = 0.35
+
+HeaderStroke.Parent = Header
+local function MakeDraggable(Object, Handle)
+    local Dragging = false
+    local DragStart
+    local StartPosition
+
+    Handle = Handle or Object
+
+    Handle.InputBegan:Connect(function(Input)
+        if Input.UserInputType == Enum.UserInputType.MouseButton1
+            or Input.UserInputType == Enum.UserInputType.Touch then
+
+            Dragging = true
+            DragStart = Input.Position
+            StartPosition = Object.Position
+
+            Input.Changed:Connect(function()
+                if Input.UserInputState == Enum.UserInputState.End then
+                    Dragging = false
+                end
+            end)
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(Input)
+        if not Dragging then
+            return
+        end
+
+        if Input.UserInputType == Enum.UserInputType.MouseMovement
+            or Input.UserInputType == Enum.UserInputType.Touch then
+
+            local Delta = Input.Position - DragStart
+
+            Object.Position = UDim2.new(
+                StartPosition.X.Scale,
+                StartPosition.X.Offset + Delta.X,
+                StartPosition.Y.Scale,
+                StartPosition.Y.Offset + Delta.Y
+            )
+        end
+    end)
+end
+
+MakeDraggable(Main, Header)
+MakeDraggable(FloatingButton)
+
+AddCorner(Header,14)
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1,-20,0,38)
+Title.Position = UDim2.fromOffset(15,3)
+Title.BackgroundTransparency = 1
+Title.Text = "🦊 xFOX HUB"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.TextSize = 22
+Title.Font = Enum.Font.GothamBlack
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.ZIndex = 12
+Title.Parent = Header
+
+local Subtitle = Instance.new("TextLabel")
+Subtitle.Size = UDim2.new(1,-20,0,20)
+Subtitle.Position = UDim2.fromOffset(16,39)
+Subtitle.BackgroundTransparency = 1
+Subtitle.Text = "Control Center • Mobile + PC"
+Subtitle.TextColor3 = Color3.fromRGB(210,210,210)
+Subtitle.TextSize = 11
+Subtitle.Font = Enum.Font.Gotham
+Subtitle.TextXAlignment = Enum.TextXAlignment.Left
+Subtitle.ZIndex = 12
+Subtitle.Parent = Header
+
+--==================================================
+-- SCROLL
+--==================================================
+
+local Scroll = Instance.new("ScrollingFrame")
+Scroll.Size = UDim2.new(1,-12,1,-72)
+Scroll.Position = UDim2.fromOffset(6,70)
+Scroll.BackgroundTransparency = 1
+Scroll.BorderSizePixel = 0
+Scroll.ScrollBarThickness = 5
+Scroll.ScrollBarImageColor3 = Settings.Theme
+Scroll.CanvasSize = UDim2.fromOffset(0,1000)
+Scroll.ZIndex = 11
+Scroll.Parent = Main
+
+local Padding = Instance.new("UIPadding")
+Padding.PaddingLeft = UDim.new(0,8)
+Padding.PaddingRight = UDim.new(0,8)
+Padding.PaddingTop = UDim.new(0,5)
+Padding.PaddingBottom = UDim.new(0,20)
+Padding.Parent = Scroll
+
+local Layout = Instance.new("UIListLayout")
+Layout.Padding = UDim.new(0,8)
+Layout.SortOrder = Enum.SortOrder.LayoutOrder
+Layout.Parent = Scroll
+
+Layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+
+	Scroll.CanvasSize = UDim2.fromOffset(
+		0,
+		Layout.AbsoluteContentSize.Y + 30
+	)
+
+end)
+
+--==================================================
+-- UI
+--==================================================
+
+local function Section(Text)
+
+	local Label = Instance.new("TextLabel")
+	Label.Size = UDim2.new(1,0,0,28)
+	Label.BackgroundTransparency = 1
+	Label.Text = Text
+	Label.TextColor3 = Settings.Theme
+	Label.TextSize = 14
+	Label.Font = Enum.Font.GothamBold
+	Label.TextXAlignment = Enum.TextXAlignment.Left
+	Label.Parent = Scroll
+
+	return Label
+end
+
+local function Button(Text)
+
+    local B = Instance.new("TextButton")
+
+    B.Size =
+        UDim2.new(1,0,0,44)
+
+    B.BackgroundColor3 =
+        Color3.fromRGB(30,30,37)
+
+    B.BackgroundTransparency = 0.05
+
+    B.Text = Text
+    B.TextColor3 =
+        Color3.fromRGB(235,235,240)
+
+    B.TextSize = 14
+
+    B.Font =
+        Enum.Font.GothamMedium
+
+    B.AutoButtonColor = false
+
+    B.BorderSizePixel = 0
+
+    B.Parent = Scroll
+
+    AddCorner(B,10)
+
+    local Stroke =
+        Instance.new("UIStroke")
+
+    Stroke.Thickness = 1
+    Stroke.Color =
+        Color3.fromRGB(65,65,75)
+
+    Stroke.Transparency = 0.25
+    Stroke.Parent = B
+
+    B.MouseEnter:Connect(function()
+
+        B.BackgroundColor3 =
+            Color3.fromRGB(42,42,50)
+
+        Stroke.Color =
+            Settings.Theme
+
+        Stroke.Transparency = 0
+
+    end)
+
+    B.MouseLeave:Connect(function()
+
+        B.BackgroundColor3 =
+            Color3.fromRGB(30,30,37)
+
+        Stroke.Color =
+            Color3.fromRGB(65,65,75)
+
+        Stroke.Transparency = 0.25
+
+    end)
+
+    B.Activated:Connect(function()
+
+        B.BackgroundColor3 =
+            Darken(Settings.Theme,0.35)
+
+        task.delay(0.12,function()
+
+            if B then
+
+                B.BackgroundColor3 =
+                    Color3.fromRGB(30,30,37)
+
+            end
+
+        end)
+
+    end)
+
+    return B
+end
+
+local function UpdateToggle(B, Label, Enabled)
+
+    B.Text =
+        Label
+        .. "     •     "
+        .. (Enabled and "ON" or "OFF")
+
+    if Enabled then
+
+        B.BackgroundColor3 =
+            Settings.Theme
+
+        B.TextColor3 =
+            Color3.new(1,1,1)
+
+    else
+
+        B.BackgroundColor3 =
+            Color3.fromRGB(30,30,37)
+
+        B.TextColor3 =
+            Color3.fromRGB(180,180,185)
+
+    end
+end
+
+--==================================================
+-- 🎯 AIM ASSIST
+--==================================================
+
+Section("🎯 AIM ASSIST")
+
+local AimButton =
+	Button("Aim Assist     •     OFF")
+
+local AimMobileButton =
+	Instance.new("TextButton")
+
+AimMobileButton.Name = "AimMobileButton"
+AimMobileButton.Size = UDim2.fromOffset(70,70)
+AimMobileButton.Position =
+	UDim2.new(1,-88,0.5,-35)
+
+AimMobileButton.BackgroundColor3 =
+	Color3.fromRGB(42,42,48)
+
+AimMobileButton.Text = "🎯"
+AimMobileButton.TextSize = 27
+AimMobileButton.TextColor3 =
+	Color3.new(1,1,1)
+
+AimMobileButton.Font =
+	Enum.Font.GothamBold
+
+AimMobileButton.AutoButtonColor = false
+AimMobileButton.ZIndex = 60
+
+AimMobileButton.Visible =
+	UserInputService.TouchEnabled
+
+AimMobileButton.Parent = Gui
+MakeDraggable(AimMobileButton)
+
+AddCorner(AimMobileButton,35)
+
+local function ToggleAim()
+
+	Settings.AimEnabled =
+		not Settings.AimEnabled
+
+	UpdateToggle(
+		AimButton,
+		"Aim Assist",
+		Settings.AimEnabled
+	)
+
+	if Settings.AimEnabled then
+
+		AimMobileButton.BackgroundColor3 =
+			Settings.Theme
+
+		AimMobileButton.Text =
+			"🎯 ON"
+
+	else
+
+		AimMobileButton.BackgroundColor3 =
+			Color3.fromRGB(42,42,48)
+
+		AimMobileButton.Text =
+			"🎯"
+	end
+end
+
+AimButton.Activated:Connect(ToggleAim)
+AimMobileButton.Activated:Connect(ToggleAim)
+
+--==================================================
+-- 🎯 OBJETIVO: CABEZA / PECHO
+--==================================================
+
+local AimPartButton =
+	Button("🎯 Objetivo: CABEZA")
+
+local AimParts = {
+	"Cabeza",
+	"Pecho"
+}
+
+local AimPartIndex = 1
+
+AimPartButton.Activated:Connect(function()
+
+	AimPartIndex += 1
+
+	if AimPartIndex > #AimParts then
+		AimPartIndex = 1
+	end
+
+	Settings.AimPart =
+		AimParts[AimPartIndex]
+
+	AimPartButton.Text =
+		"🎯 Objetivo: "
+		..string.upper(Settings.AimPart)
+
+end)
+
+--==================================================
+-- X = AIM
+--==================================================
+
+UserInputService.InputBegan:Connect(function(Input, Processed)
+
+	if Processed then
+		return
+	end
+
+	if Input.KeyCode == Enum.KeyCode.X then
+		ToggleAim()
+	end
+
+end)
+
+--==================================================
+-- AIM TARGET
+--==================================================
+
+local function GetAimTarget()
+
+	local BestPlayer = nil
+	local BestDistance = math.huge
+
+	local Viewport = Camera.ViewportSize
+	local Center =
+		Vector2.new(
+			Viewport.X / 2,
+			Viewport.Y / 2
+		)
+
+	for _,Player in ipairs(Players:GetPlayers()) do
+
+		if Player ~= LocalPlayer
+			and not IsBlacklisted(Player)
+			and not IsWhitelisted(Player)
+			and IsValidTeam(Player) then
+
+			local Character = Player.Character
+
+			if Character then
+
+				local Humanoid =
+					Character:FindFirstChildOfClass(
+						"Humanoid"
+					)
+
+				local Root =
+					Character:FindFirstChild(
+						"HumanoidRootPart"
+					)
+
+				if Humanoid
+					and Humanoid.Health > 0
+					and Root then
+
+					local ScreenPosition, OnScreen =
+						Camera:WorldToViewportPoint(
+							Root.Position
+						)
+
+					if OnScreen then
+
+						local ScreenDistance =
+							(
+								Vector2.new(
+									ScreenPosition.X,
+									ScreenPosition.Y
+								)
+								- Center
+							).Magnitude
+
+						if ScreenDistance < BestDistance then
+
+							BestDistance =
+								ScreenDistance
+
+							BestPlayer =
+								Player
+						end
+					end
+				end
+			end
+		end
+	end
+
+	return BestPlayer
+end
+
+--==================================================
+-- AIM UPDATE
+--==================================================
+
+RunService.RenderStepped:Connect(function()
+
+	if not Settings.AimEnabled then
+		return
+	end
+
+	local Target =
+		GetAimTarget()
+
+	if not Target then
+		return
+	end
+
+	local Character =
+		Target.Character
+
+	if not Character then
+		return
+	end
+
+	local Root =
+		Character:FindFirstChild(
+			"HumanoidRootPart"
+		)
+
+	local Humanoid =
+		Character:FindFirstChildOfClass(
+			"Humanoid"
+		)
+
+	if not Root
+		or not Humanoid
+		or Humanoid.Health <= 0 then
+
+		return
+	end
+
+	local Head =
+	Character:FindFirstChild("Head")
+
+if not Head then
+	return
+end
+
+local AimPart
+
+if Settings.AimPart == "Cabeza" then
+	AimPart = Character:FindFirstChild("Head")
+else
+	AimPart =
+		Character:FindFirstChild("UpperTorso")
+		or Character:FindFirstChild("Torso")
+		or Character:FindFirstChild("HumanoidRootPart")
+end
+
+if not AimPart then
+	return
+end
+
+local AimPosition =
+	AimPart.Position
+
+		+ (
+			Root.AssemblyLinearVelocity
+			* Settings.Prediction
+		)
+
+	local CameraPosition =
+		Camera.CFrame.Position
+
+	local Direction =
+		AimPosition - CameraPosition
+
+	if Direction.Magnitude <= 0 then
+		return
+	end
+
+	local TargetCFrame =
+		CFrame.lookAt(
+			CameraPosition,
+			AimPosition
+		)
+
+	Camera.CFrame =
+		Camera.CFrame:Lerp(
+			TargetCFrame,
+			Settings.Smoothness
+		)
+end)
+
+--==================================================
+-- SLIDER
+--==================================================
+
+local function Slider(
+	LabelText,
+	Value,
+	Step,
+	Min,
+	Max,
+	Format
+)
+
+	local Holder =
+		Instance.new("Frame")
+
+	Holder.Size =
+		UDim2.new(1,0,0,75)
+
+	Holder.BackgroundColor3 =
+		Color3.fromRGB(35,35,41)
+
+	Holder.Parent = Scroll
+
+	AddCorner(Holder,9)
+
+	local Label =
+		Instance.new("TextLabel")
+
+	Label.Size =
+		UDim2.new(1,-20,0,30)
+
+	Label.Position =
+		UDim2.fromOffset(10,3)
+
+	Label.BackgroundTransparency = 1
+	Label.TextColor3 =
+		Color3.new(1,1,1)
+
+	Label.TextSize = 14
+	Label.Font = Enum.Font.Gotham
+
+	Label.TextXAlignment =
+		Enum.TextXAlignment.Left
+
+	Label.Parent = Holder
+
+	local Minus =
+		Instance.new("TextButton")
+
+	Minus.Size =
+		UDim2.fromOffset(65,32)
+
+	Minus.Position =
+		UDim2.fromOffset(10,38)
+
+	Minus.Text = "−"
+	Minus.TextSize = 20
+	Minus.TextColor3 =
+		Color3.new(1,1,1)
+
+	Minus.BackgroundColor3 =
+		Color3.fromRGB(48,48,55)
+
+	Minus.Parent = Holder
+
+	AddCorner(Minus,7)
+
+	local Plus =
+		Instance.new("TextButton")
+
+	Plus.Size =
+		UDim2.fromOffset(65,32)
+
+	Plus.Position =
+		UDim2.new(1,-75,0,38)
+
+	Plus.Text = "+"
+	Plus.TextSize = 20
+	Plus.TextColor3 =
+		Color3.new(1,1,1)
+
+	Plus.BackgroundColor3 =
+		Color3.fromRGB(48,48,55)
+
+	Plus.Parent = Holder
+
+	AddCorner(Plus,7)
+
+	local function Update()
+
+		Label.Text =
+			LabelText
+			..Format(Value)
+
+	end
+
+	Minus.Activated:Connect(function()
+
+		Value =
+			math.clamp(
+				Value - Step,
+				Min,
+				Max
+			)
+
+		Update()
+	end)
+
+	Plus.Activated:Connect(function()
+
+		Value =
+			math.clamp(
+				Value + Step,
+				Min,
+				Max
+			)
+
+		Update()
+	end)
+
+	Update()
+end
+
+Slider(
+	"Suavidad: ",
+	Settings.Smoothness,
+	0.05,
+	0.05,
+	1,
+
+	function(Value)
+
+		Settings.Smoothness = Value
+
+		return math.floor(Value * 100) .. "%"
+
+	end
+)
+
+Slider(
+	"Predicción: ",
+	Settings.Prediction,
+	0.05,
+	0,
+	1,
+
+	function(Value)
+
+		Settings.Prediction = Value
+
+		return string.format("%.2f",Value)
+
+	end
+)
+
+--==================================================
+-- 🎯 OBJETIVO
+--==================================================
+
+local TeamButton =
+	Button("Objetivo: All")
+
+local TeamModes = {
+	"All",
+	"Wanted",
+	"Police"
+}
+
+local TeamIndex = 1
+
+Settings.TargetTeam = TeamModes[TeamIndex]
+
+TeamButton.Activated:Connect(function()
+
+	TeamIndex += 1
+
+	if TeamIndex > #TeamModes then
+		TeamIndex = 1
+	end
+
+	Settings.TargetTeam =
+		TeamModes[TeamIndex]
+
+	TeamButton.Text =
+		"Objetivo: "
+		..Settings.TargetTeam
+end)
+
+--==================================================
+-- 📏 DISTANCIA MÁXIMA
+--==================================================
+
+local MaxDistanceButton =
+    Button("Distancia: 500")
+
+local DistanceModes = {
+    500,
+    1000,
+    3500
+}
+
+local DistanceIndex = 1
+
+Settings.MaxDistance =
+    DistanceModes[DistanceIndex]
+
+MaxDistanceButton.Activated:Connect(function()
+
+    DistanceIndex += 1
+
+    if DistanceIndex > #DistanceModes then
+        DistanceIndex = 1
+    end
+
+    Settings.MaxDistance =
+        DistanceModes[DistanceIndex]
+
+    MaxDistanceButton.Text =
+        "Distancia: "
+        .. Settings.MaxDistance
+end)
+
+--==================================================
+-- 👁️ ESP
+--==================================================
+
+Section("👁️ ESP")
+
+local ESPButton =
+	Button("ESP     •     OFF")
+
+local NameButton =
+	Button("Mostrar nombres     •     ON")
+
+local TeamInfoButton =
+	Button("Mostrar equipo     •     ON")
+
+local DistanceButton =
+	Button("Mostrar distancia     •     ON")
+
+local HealthButton =
+	Button("Mostrar health     •     ON")
+
+ESPButton.Activated:Connect(function()
+
+	Settings.ESP =
+		not Settings.ESP
+
+	UpdateToggle(
+		ESPButton,
+		"ESP",
+		Settings.ESP
+	)
+
+end)
+
+NameButton.Activated:Connect(function()
+
+	Settings.ShowName =
+		not Settings.ShowName
+
+	UpdateToggle(
+		NameButton,
+		"Mostrar nombres",
+		Settings.ShowName
+	)
+
+end)
+
+TeamInfoButton.Activated:Connect(function()
+
+	Settings.ShowTeam =
+		not Settings.ShowTeam
+
+	UpdateToggle(
+		TeamInfoButton,
+		"Mostrar equipo",
+		Settings.ShowTeam
+	)
+
+end)
+
+DistanceButton.Activated:Connect(function()
+
+	Settings.ShowDistance =
+		not Settings.ShowDistance
+
+	UpdateToggle(
+		DistanceButton,
+		"Mostrar distancia",
+		Settings.ShowDistance
+	)
+
+end)
+
+HealthButton.Activated:Connect(function()
+
+	Settings.ShowHealth =
+		not Settings.ShowHealth
+
+	UpdateToggle(
+		HealthButton,
+		"Mostrar health",
+		Settings.ShowHealth
+	)
+
+end)
+
+--==================================================
+-- ESP CREATIONlocal function CreateESP(Player)
+
+    if Player == LocalPlayer then
+        return
+    end
+
+    local function CharacterAdded(Character)
+
+        local Old = Character:FindFirstChild("xFoxESP")
+        if Old then
+            Old:Destroy()
+        end
+
+        local Billboard = Instance.new("BillboardGui")
+        Billboard.Name = "xFoxESP"
+        Billboard.Size = UDim2.fromOffset(220, 95)
+        Billboard.StudsOffset = Vector3.new(0, 3, 0)
+        Billboard.AlwaysOnTop = true
+        Billboard.Enabled = Settings.ESP
+        Billboard.Parent = Character
+
+        local function MakeLabel(Name, Height, PositionY, Color, Size)
+
+            local Label = Instance.new("TextLabel")
+            Label.Name = Name
+            Label.Size = UDim2.new(1, 0, 0, Height)
+            Label.Position = UDim2.new(0, 0, 0, PositionY)
+            Label.BackgroundTransparency = 1
+            Label.TextColor3 = Color
+            Label.TextStrokeTransparency = 0.2
+            Label.TextSize = Size
+            Label.Font = Enum.Font.GothamBold
+            Label.TextWrapped = true
+            Label.Parent = Billboard
+
+            return Label
+        end
+
+        MakeLabel(
+            "Info",
+            20,
+            0,
+            Color3.new(1, 1, 1),
+            13
+        )
+
+        MakeLabel(
+            "Status",
+            20,
+            20,
+            Color3.new(1, 1, 1),
+            12
+        )
+
+        MakeLabel(
+            "Tool",
+            20,
+            40,
+            Color3.new(1, 1, 1),
+            12
+        )
+
+        local HealthLabel = MakeLabel(
+            "Health",
+            18,
+            60,
+            Color3.fromRGB(50, 255, 80),
+            12
+        )
+    end
+
+    if Player.Character then
+        CharacterAdded(Player.Character)
+    end
+
+    Player.CharacterAdded:Connect(CharacterAdded)
+end
+--==================================================
+
+
+
+--==================================================
+-- ESP UPDATE
+--==================================================
+
+RunService.RenderStepped:Connect(function()
+
+	for _,Player in ipairs(
+		Players:GetPlayers()
+	) do
+
+		if Player ~= LocalPlayer
+			and Player.Character then
+
+			local Character =
+				Player.Character
+
+			local Root =
+				Character:FindFirstChild(
+					"HumanoidRootPart"
+				)
+
+			local Humanoid =
+				Character:FindFirstChildOfClass(
+					"Humanoid"
+				)
+
+			local Billboard =
+				Character:FindFirstChild(
+					"xFoxESP"
+				)
+
+			if Billboard then
+
+    local MyCharacter =
+        LocalPlayer.Character
+
+    local MyRoot =
+        MyCharacter
+        and                 local StatusLabel =
+                    Billboard:FindFirstChild("Status")
+
+                local ToolLabel =
+                    Billboard:FindFirstChild("Tool")
+
+                if Text and Humanoid then
+
+                    -- NOMBRE
+                    Text.Visible = Settings.ShowName
+                    Text.Text = Player.DisplayName
+                    Text.TextColor3 = Color3.new(1, 1, 1)
+
+                    -- ESTADO / EQUIPO
+                    if StatusLabel then
+
+                        local Status = "Citizen"
+                        local StatusColor =
+                            Color3.new(1, 1, 1)
+
+                        local IsWanted = false
+
+                        if Root then
+                            local WantedAttribute =
+                                Root:GetAttribute("IsWanted")
+
+                            IsWanted =
+                                WantedAttribute == true
+                        end
+
+                        local TeamName = ""
+
+                        if Player.Team then
+                            TeamName = Player.Team.Name
+                        else
+                            TeamName = GetTeamName(Player)
+                        end
+
+                        local TeamLower =
+                            string.lower(TeamName)
+
+                        if IsWanted then
+
+                            Status = "Wanted"
+                            StatusColor =
+                                Color3.fromRGB(255, 220, 0)
+
+                        elseif string.find(TeamLower, "police") then
+
+                            Status = "Police"
+                            StatusColor =
+                                Color3.fromRGB(70, 150, 255)
+
+                        elseif string.find(TeamLower, "fire") then
+
+                            Status = "Fire Department"
+                            StatusColor =
+                                Color3.fromRGB(255, 70, 70)
+
+                        elseif string.find(TeamLower, "hars") then
+
+                            Status = "Hars"
+                            StatusColor =
+                                Color3.fromRGB(255, 220, 0)
+
+                        else
+
+                            Status = "Citizen"
+                            StatusColor =
+                                Color3.new(1, 1, 1)
+                        end
+
+                        StatusLabel.Visible =
+                            Settings.ShowTeam
+
+                        StatusLabel.Text = Status
+                        StatusLabel.TextColor3 =
+                            StatusColor
+                    end
+
+                    -- HERRAMIENTA EQUIPADA
+                    if ToolLabel then
+
+                        local Tool =
+                            Character:FindFirstChildOfClass("Tool")
+
+                        ToolLabel.Visible = Tool ~= nil
+
+                        if Tool then
+                            ToolLabel.Text =
+                                "[" .. Tool.Name .. "]"
+                        else
+                            ToolLabel.Text = ""
+                        end
+
+                        ToolLabel.TextColor3 =
+                            Color3.new(1, 1, 1)
+                    end
+                end
+
+local MyRoot =
+    MyCharacter
+    and MyCharacter:FindFirstChild("HumanoidRootPart")
+
+    local InRange = false
+
+    if MyRoot and Root then
+
+        local Distance =
+            (MyRoot.Position - Root.Position).Magnitude
+
+        InRange =
+            Distance <= Settings.MaxDistance
+    end
+
+    Billboard.Enabled =
+        Settings.ESP and InRange
+				
+
+				if HealthLabel
+					and Humanoid then
+
+					HealthLabel.Visible =
+						Settings.ShowHealth
+
+					HealthLabel.Text =
+						""
+						..math.floor(
+							Humanoid.Health
+						)
+						.."/"
+						..math.floor(
+							Humanoid.MaxHealth
+						)
+				end
+			end
+		end
+	end
+end)
+
+--==================================================
+-- 👤 PLAYER LISTS + AUTOCOMPLETADO
+--==================================================
+
+Section("👤 PLAYER LISTS")
+
+local NameBox =
+	Instance.new("TextBox")
+
+NameBox.Size =
+	UDim2.new(1,0,0,40)
+
+NameBox.BackgroundColor3 =
+	Color3.fromRGB(38,38,44)
+
+NameBox.TextColor3 =
+	Color3.new(1,1,1)
+
+NameBox.PlaceholderColor3 =
+	Color3.fromRGB(160,160,160)
+
+NameBox.PlaceholderText =
+	"Nombre o DisplayName..."
+
+NameBox.Text = ""
+NameBox.TextSize = 14
+NameBox.Font =
+	Enum.Font.Gotham
+
+NameBox.ClearTextOnFocus = false
+NameBox.Parent = Scroll
+
+AddCorner(NameBox,8)
+
+--==================================================
+-- 🔎 SUGERENCIAS
+--==================================================
+
+local SuggestionsFrame =
+	Instance.new("Frame")
+
+SuggestionsFrame.Name =
+	"PlayerSuggestions"
+
+SuggestionsFrame.Size =
+	UDim2.new(1,0,0,0)
+
+SuggestionsFrame.BackgroundColor3 =
+	Color3.fromRGB(30,30,36)
+
+SuggestionsFrame.BorderSizePixel = 0
+SuggestionsFrame.Visible = false
+SuggestionsFrame.ClipsDescendants = true
+SuggestionsFrame.Parent = Scroll
+
+AddCorner(SuggestionsFrame,8)
+
+local SuggestionsLayout =
+	Instance.new("UIListLayout")
+
+SuggestionsLayout.Padding =
+	UDim.new(0,4)
+
+SuggestionsLayout.SortOrder =
+	Enum.SortOrder.LayoutOrder
+
+SuggestionsLayout.Parent =
+	SuggestionsFrame
+
+local function Normalize(Text)
+
+	return string.lower(
+		string.gsub(
+			Text,
+			"%s+",
+			""
+		)
+	)
+
+end
+
+local function UpdateSuggestions()
+
+	-- Limpiar sugerencias anteriores
+	for _,Child in ipairs(
+		SuggestionsFrame:GetChildren()
+	) do
+
+		if Child:IsA("TextButton") then
+			Child:Destroy()
+		end
+
+	end
+
+	local Search =
+		Normalize(NameBox.Text)
+
+	if Search == "" then
+
+		SuggestionsFrame.Visible = false
+		SuggestionsFrame.Size =
+			UDim2.new(1,0,0,0)
+
+		return
+	end
+
+	local Found = {}
+
+	for _,Player in ipairs(
+		Players:GetPlayers()
+	) do
+
+		if Player ~= LocalPlayer then
+
+			local Name =
+				Normalize(Player.Name)
+
+			local Display =
+				Normalize(Player.DisplayName)
+
+			if string.find(Name,Search,1,true)
+				or string.find(Display,Search,1,true) then
+
+				table.insert(
+					Found,
+					Player
+				)
+
+			end
+		end
+	end
+
+	-- Máximo 5 sugerencias
+	local MaxSuggestions =
+		math.min(#Found,5)
+
+	if MaxSuggestions == 0 then
+
+		SuggestionsFrame.Visible = false
+		SuggestionsFrame.Size =
+			UDim2.new(1,0,0,0)
+
+		return
+	end
+
+	for Index = 1,MaxSuggestions do
+
+		local Player =
+			Found[Index]
+
+		local Suggestion =
+			Instance.new("TextButton")
+
+		Suggestion.Size =
+			UDim2.new(1,0,0,38)
+
+		Suggestion.BackgroundColor3 =
+			Color3.fromRGB(45,45,52)
+
+		Suggestion.Text =
+			"👤 "
+			..Player.DisplayName
+			.."  (@"
+			..Player.Name
+			..")"
+
+		Suggestion.TextColor3 =
+			Color3.new(1,1,1)
+
+		Suggestion.TextSize = 13
+
+		Suggestion.Font =
+			Enum.Font.Gotham
+
+		Suggestion.AutoButtonColor = true
+		Suggestion.Parent =
+			SuggestionsFrame
+
+		AddCorner(Suggestion,7)
+
+		Suggestion.Activated:Connect(function()
+
+			NameBox.Text =
+				Player.Name
+
+			NameBox.CursorPosition =
+				#NameBox.Text + 1
+
+			SuggestionsFrame.Visible =
+				false
+
+			SuggestionsFrame.Size =
+				UDim2.new(1,0,0,0)
+
+		end)
+
+	end
+
+	SuggestionsFrame.Visible = true
+
+	SuggestionsFrame.Size =
+		UDim2.new(
+			1,
+			0,
+			0,
+			(MaxSuggestions * 42) + 4
+		)
+
+end
+
+NameBox:GetPropertyChangedSignal("Text"):Connect(
+	UpdateSuggestions
+)
+
+--==================================================
+-- BOTONES
+--==================================================
+
+local WhiteButton =
+	Button(
+		"✓  AÑADIR A WHITELIST"
+	)
+
+WhiteButton.BackgroundColor3 =
+	Color3.fromRGB(40,110,70)
+
+local BlackButton =
+	Button(
+		"✕  AÑADIR A BLACKLIST"
+	)
+
+BlackButton.BackgroundColor3 =
+	Color3.fromRGB(120,45,45)
+
+local Status =
+	Instance.new("TextLabel")
+
+Status.Size =
+	UDim2.new(1,0,0,32)
+
+Status.BackgroundTransparency = 1
+
+Status.Text =
+	"Escribe un jugador."
+
+Status.TextColor3 =
+	Color3.fromRGB(180,180,180)
+
+Status.TextSize = 12
+
+Status.Font =
+	Enum.Font.Gotham
+
+Status.Parent = Scroll
+
+local WhiteHeader =
+	Section("✓ WHITELIST")
+
+local BlackHeader =
+	Section("✕ BLACKLIST")
+
+--==================================================
+-- 🔎 FIND PLAYER
+--==================================================
+
+local function FindPlayer(Text)
+
+	Text =
+		Normalize(Text)
+
+	if Text == "" then
+		return nil
+	end
+
+	for _,Player in ipairs(
+		Players:GetPlayers()
+	) do
+
+		local Name =
+			Normalize(Player.Name)
+
+		local Display =
+			Normalize(Player.DisplayName)
+
+		if Name == Text
+			or Display == Text then
+
+			return Player
+		end
+
+	end
+
+	return nil
+end
+
+--==================================================
+-- 🔄 REFRESH LISTS
+--==================================================
+
+local function RefreshLists()
+
+	for _,Child in ipairs(
+		Scroll:GetChildren()
+	) do
+
+		if Child:GetAttribute(
+			"FoxListEntry"
+		) then
+
+			Child:Destroy()
+
+		end
+
+	end
+
+	WhiteHeader.LayoutOrder = 100
+	BlackHeader.LayoutOrder = 200
+
+	for UserId in pairs(
+		Whitelist
+	) do
+
+		local Player =
+			Players:GetPlayerByUserId(
+				UserId
+			)
+
+		if Player then
+
+			local B =
+				Button(
+					"✓ "
+					..Player.Name
+					.."     ×"
+				)
+
+			B:SetAttribute(
+				"FoxListEntry",
+				true
+			)
+
+			B.LayoutOrder = 110
+
+			B.BackgroundColor3 =
+				Color3.fromRGB(
+					40,110,70
+				)
+
+			B.Activated:Connect(function()
+
+				Whitelist[UserId] =
+					nil
+
+				Status.Text =
+					Player.Name
+					.." eliminado de WHITELIST."
+
+				RefreshLists()
+
+			end)
+
+		end
+
+	end
+
+	for UserId in pairs(
+		Blacklist
+	) do
+
+		local Player =
+			Players:GetPlayerByUserId(
+				UserId
+			)
+
+		if Player then
+
+			local B =
+				Button(
+					"✕ "
+					..Player.Name
+					.."     ×"
+				)
+
+			B:SetAttribute(
+				"FoxListEntry",
+				true
+			)
+
+			B.LayoutOrder = 210
+
+			B.BackgroundColor3 =
+				Color3.fromRGB(
+					100,40,40
+				)
+
+			B.Activated:Connect(function()
+
+				Blacklist[UserId] =
+					nil
+
+				Status.Text =
+					Player.Name
+					.." eliminado de BLACKLIST."
+
+				RefreshLists()
+
+			end)
+
+		end
+
+	end
+end
+
+--==================================================
+-- ✓ WHITELIST
+--==================================================
+
+WhiteButton.Activated:Connect(function()
+
+	local Player =
+		FindPlayer(
+			NameBox.Text
+		)
+
+	if not Player then
+
+		Status.Text =
+			"❌ Jugador no encontrado."
+
+		return
+	end
+
+	Whitelist[Player.UserId] =
+		true
+
+	Blacklist[Player.UserId] =
+		nil
+
+	Status.Text =
+		"✓ "
+		..Player.Name
+		.." añadido a WHITELIST."
+
+	NameBox.Text = ""
+
+	SuggestionsFrame.Visible =
+		false
+
+	RefreshLists()
+
+end)
+
+--==================================================
+-- ✕ BLACKLIST
+--==================================================
+
+BlackButton.Activated:Connect(function()
+
+	local Player =
+		FindPlayer(
+			NameBox.Text
+		)
+
+	if not Player then
+
+		Status.Text =
+			"❌ Jugador no encontrado."
+
+		return
+	end
+
+	Blacklist[Player.UserId] =
+		true
+
+	Whitelist[Player.UserId] =
+		nil
+
+	Status.Text =
+		"✕ "
+		..Player.Name
+		.." añadido a BLACKLIST."
+
+	NameBox.Text = ""
+
+	SuggestionsFrame.Visible =
+		false
+
+	RefreshLists()
+
+end)
+
+--==================================================
+-- 👥 ACTUALIZAR SUGERENCIAS AL ENTRAR/SALIR
+--==================================================
+
+Players.PlayerAdded:Connect(function()
+
+	if NameBox.Text ~= "" then
+		UpdateSuggestions()
+	end
+
+end)
+
+Players.PlayerRemoving:Connect(function()
+
+	if NameBox.Text ~= "" then
+		UpdateSuggestions()
+	end
+
+end)
+
+-- Primera carga
+RefreshLists()
