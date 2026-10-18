@@ -1083,44 +1083,317 @@ Players.PlayerAdded:Connect(
 
 --==================================================
 -- ESP UPDATE
+--=============================================				local Text =
+					Billboard:FindFirstChild(
+						"Info"
+					)
+
+				local HealthLabel =
+					Billboard:FindFirstChild(
+						"Health"
+					)
+
+				if Text and Humanoid then
+
+					local Info = {}
+
+					if Settings.ShowName then
+
+						table.insert(
+							Info,
+							Player.DisplayName
+						)
+
+					end
+
+					if Settings.ShowTeam then
+
+						table.insert(
+							Info,
+							"Team: "
+							..GetTeamName(Player)
+						)
+
+					end
+
+					if Settings.ShowDistance
+						and Root then
+
+						local MyCharacter =
+							LocalPlayer.Character
+
+						local MyRoot =
+							MyCharacter
+							and MyCharacter:FindFirstChild(
+								"HumanoidRootPart"
+							)
+
+						if MyRoot then
+
+							local Distance =
+								math.floor(
+									(
+										MyRoot.Position
+										- Root.Position
+									).Magnitude
+								)
+
+							table.insert(
+								Info,
+								Distance
+								.." studs"
+							)
+						end
+					end
+
+					Text.Text =
+						table.concat(
+							Info,
+							"\n"
+						)
+
+					Text.TextColor3 =
+						GetTeamColor(Player)
+				end
+
+				if HealthLabel
+					and Humanoid then
+
+					HealthLabel.Visible =
+						Settings.ShowHealth
+
+					HealthLabel.Text =
+						"Health: "
+						..math.floor(
+							Humanoid.Health
+						)
+						.."/"
+						..math.floor(
+							Humanoid.MaxHealth
+						)
+				end
+			end
+		end
+	end
+end)
+
+--==================================================
+-- 👤 PLAYER LISTS + AUTOCOMPLETADO
 --==================================================
 
-RunService.RenderStepped:Connect(function()
+Section("👤 PLAYER LISTS")
+
+local NameBox =
+	Instance.new("TextBox")
+
+NameBox.Size =
+	UDim2.new(1,0,0,40)
+
+NameBox.BackgroundColor3 =
+	Color3.fromRGB(38,38,44)
+
+NameBox.TextColor3 =
+	Color3.new(1,1,1)
+
+NameBox.PlaceholderColor3 =
+	Color3.fromRGB(160,160,160)
+
+NameBox.PlaceholderText =
+	"Nombre o DisplayName..."
+
+NameBox.Text = ""
+NameBox.TextSize = 14
+NameBox.Font =
+	Enum.Font.Gotham
+
+NameBox.ClearTextOnFocus = false
+NameBox.Parent = Scroll
+
+AddCorner(NameBox,8)
+
+--==================================================
+-- 🔎 SUGERENCIAS
+--==================================================
+
+local SuggestionsFrame =
+	Instance.new("Frame")
+
+SuggestionsFrame.Name =
+	"PlayerSuggestions"
+
+SuggestionsFrame.Size =
+	UDim2.new(1,0,0,0)
+
+SuggestionsFrame.BackgroundColor3 =
+	Color3.fromRGB(30,30,36)
+
+SuggestionsFrame.BorderSizePixel = 0
+SuggestionsFrame.Visible = false
+SuggestionsFrame.ClipsDescendants = true
+SuggestionsFrame.Parent = Scroll
+
+AddCorner(SuggestionsFrame,8)
+
+local SuggestionsLayout =
+	Instance.new("UIListLayout")
+
+SuggestionsLayout.Padding =
+	UDim.new(0,4)
+
+SuggestionsLayout.SortOrder =
+	Enum.SortOrder.LayoutOrder
+
+SuggestionsLayout.Parent =
+	SuggestionsFrame
+
+local function Normalize(Text)
+
+	return string.lower(
+		string.gsub(
+			Text,
+			"%s+",
+			""
+		)
+	)
+
+end
+
+local function UpdateSuggestions()
+
+	-- Limpiar sugerencias anteriores
+	for _,Child in ipairs(
+		SuggestionsFrame:GetChildren()
+	) do
+
+		if Child:IsA("TextButton") then
+			Child:Destroy()
+		end
+
+	end
+
+	local Search =
+		Normalize(NameBox.Text)
+
+	if Search == "" then
+
+		SuggestionsFrame.Visible = false
+		SuggestionsFrame.Size =
+			UDim2.new(1,0,0,0)
+
+		return
+	end
+
+	local Found = {}
 
 	for _,Player in ipairs(
 		Players:GetPlayers()
 	) do
 
-		if Player ~= LocalPlayer
-			and Player.Character then
+		if Player ~= LocalPlayer then
 
-			local Character =
-				Player.Character
+			local Name =
+				Normalize(Player.Name)
 
-			local Root =
-				Character:FindFirstChild(
-					"HumanoidRootPart"
+			local Display =
+				Normalize(Player.DisplayName)
+
+			if string.find(Name,Search,1,true)
+				or string.find(Display,Search,1,true) then
+
+				table.insert(
+					Found,
+					Player
 				)
 
-			local Humanoid =
-				Character:FindFirstChildOfClass(
-					"Humanoid"
-				)
+			end
+		end
+	end
 
-			local Billboard =
-				Character:FindFirstChild(
-					"xFoxESP"
-				)
+	-- Máximo 5 sugerencias
+	local MaxSuggestions =
+		math.min(#Found,5)
 
-			if Billboard then
+	if MaxSuggestions == 0 then
 
-				Billboard.Enabled =
-					Settings.ESP
+		SuggestionsFrame.Visible = false
+		SuggestionsFrame.Size =
+			UDim2.new(1,0,0,0)
 
-				local Text =
-					Billboard:FindFirstChild(
-						"Info"
-					)
+		return
+	end
+
+	for Index = 1,MaxSuggestions do
+
+		local Player =
+			Found[Index]
+
+		local Suggestion =
+			Instance.new("TextButton")
+
+		Suggestion.Size =
+			UDim2.new(1,0,0,38)
+
+		Suggestion.BackgroundColor3 =
+			Color3.fromRGB(45,45,52)
+
+		Suggestion.Text =
+			"👤 "
+			..Player.DisplayName
+			.."  (@"
+			..Player.Name
+			..")"
+
+		Suggestion.TextColor3 =
+			Color3.new(1,1,1)
+
+		Suggestion.TextSize = 13
+
+		Suggestion.Font =
+			Enum.Font.Gotham
+
+		Suggestion.AutoButtonColor = true
+		Suggestion.Parent =
+			SuggestionsFrame
+
+		AddCorner(Suggestion,7)
+
+		Suggestion.Activated:Connect(function()
+
+			NameBox.Text =
+				Player.Name
+
+			NameBox.CursorPosition =
+				#NameBox.Text + 1
+
+			SuggestionsFrame.Visible =
+				false
+
+			SuggestionsFrame.Size =
+				UDim2.new(1,0,0,0)
+
+		end)
+
+	end
+
+	SuggestionsFrame.Visible = true
+
+	SuggestionsFrame.Size =
+		UDim2.new(
+			1,
+			0,
+			0,
+			(MaxSuggestions * 42) + 4
+		)
+
+end
+
+NameBox:GetPropertyChangedSignal("Text"):Connect(
+	UpdateSuggestions
+)
+
+--=====
+
+
 
 				local HealthLabel =
 					Billboard:FindFirstChild(
