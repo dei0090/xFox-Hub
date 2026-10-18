@@ -136,31 +136,25 @@ local function IsWhitelisted(Player)
 	return Whitelist[Player.UserId] == true
 end
 
-local function IsWantedPlayer(Player)
-    local Character = Player.Character
-    local Root = Character and Character:FindFirstChild("HumanoidRootPart")
+local state = player.Team and player.Team.Name == "Police"
+local humanoidRootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+humanoidRootPart = humanoidRootPart and humanoidRootPart:GetAttribute("IsWanted")
 
-    return Root ~= nil
-        and Root:GetAttribute("IsWanted") == true
-end
+if tbl4.lockPolice or tbl4.lockWanted then
+    state = tbl4.lockPolice and state
+    local flag2 = false
 
-local function IsValidTeam(Player)
-    local Mode = Settings.TargetTeam
-
-    if Mode == "All" or Mode == "Todos" then
-        return true
+    if state then
+        flag2 = true
     end
 
-    if Mode == "IsWanted" then
-        return IsWantedPlayer(Player)
+    if tbl4.lockWanted and humanoidRootPart then
+        flag2 = true
     end
 
-    if Mode == "Police" then
-        return Player.Team ~= nil
-            and Player.Team.Name == "Police"
+    if not flag2 then
+        continue
     end
-
-    return false
 end
 
 --==================================================
