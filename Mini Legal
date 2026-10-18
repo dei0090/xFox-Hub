@@ -151,7 +151,7 @@ local function IsValidTeam(Player)
         return true
     end
 
-    if Mode == "Wanted" then
+    if Mode == "IsWanted" then
         return IsWantedPlayer(Player)
     end
 
