@@ -137,44 +137,27 @@ local function IsWhitelisted(Player)
 end
 
 local function IsWantedPlayer(Player)
-    if Player:GetAttribute("IsWanted") == true then
-        return true
-    end
-
     local Character = Player.Character
+    local Root = Character and Character:FindFirstChild("HumanoidRootPart")
 
-    if Character and Character:GetAttribute("IsWanted") == true then
-        return true
-    end
-
-    local Flag = Player:FindFirstChild("IsWanted")
-
-    if Flag and Flag:IsA("BoolValue") and Flag.Value then
-        return true
-    end
-
-    if Character then
-        Flag = Character:FindFirstChild("IsWanted")
-
-        if Flag and Flag:IsA("BoolValue") and Flag.Value then
-            return true
-        end
-    end
-
-    return false
+    return Root ~= nil
+        and Root:GetAttribute("IsWanted") == true
 end
 
 local function IsValidTeam(Player)
-    if Settings.TargetTeam == "All" then
+    local Mode = Settings.TargetTeam
+
+    if Mode == "All" or Mode == "Todos" then
         return true
     end
 
-    if Settings.TargetTeam == "Wanted" then
+    if Mode == "Wanted" then
         return IsWantedPlayer(Player)
     end
 
-    if Settings.TargetTeam == "Police" then
-        return GetTeamName(Player) == "Police"
+    if Mode == "Police" then
+        return Player.Team ~= nil
+            and Player.Team.Name == "Police"
     end
 
     return false
