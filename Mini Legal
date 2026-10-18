@@ -1094,33 +1094,11 @@ TeamInfoButton.Activated:Connect(function()
 end)
 
 DistanceButton.Activated:Connect(function()
-
-	Settings.ShowDistance =
-		not Settings.ShowDistance
-
-	UpdateToggle(
-		DistanceButton,
-		"Mostrar distancia",
-		Settings.ShowDistance
-	)
-
-end)
-
-HealthButton.Activated:Connect(function()
-
-	Settings.ShowHealth =
-		not Settings.ShowHealth
-
-	UpdateToggle(
-		HealthButton,
-		"Mostrar health",
-		Settings.ShowHealth
-	)
-
-end)
-
 --==================================================
--- ESP CREATIONlocal function CreateESP(Player)
+-- ESP CREATION
+--==================================================
+
+local function CreateESP(Player)
 
     if Player == LocalPlayer then
         return
@@ -1158,37 +1136,10 @@ end)
             return Label
         end
 
-        MakeLabel(
-            "Info",
-            20,
-            0,
-            Color3.new(1, 1, 1),
-            13
-        )
-
-        MakeLabel(
-            "Status",
-            20,
-            20,
-            Color3.new(1, 1, 1),
-            12
-        )
-
-        MakeLabel(
-            "Tool",
-            20,
-            40,
-            Color3.new(1, 1, 1),
-            12
-        )
-
-        local HealthLabel = MakeLabel(
-            "Health",
-            18,
-            60,
-            Color3.fromRGB(50, 255, 80),
-            12
-        )
+        MakeLabel("Info", 20, 0, Color3.new(1, 1, 1), 13)
+        MakeLabel("Status", 20, 20, Color3.new(1, 1, 1), 12)
+        MakeLabel("Tool", 20, 40, Color3.new(1, 1, 1), 12)
+        MakeLabel("Health", 18, 60, Color3.fromRGB(50, 255, 80), 12)
     end
 
     if Player.Character then
@@ -1197,7 +1148,40 @@ end)
 
     Player.CharacterAdded:Connect(CharacterAdded)
 end
+
+for _, Player in ipairs(Players:GetPlayers()) do
+    CreateESP(Player)
+end
+
+Players.PlayerAdded:Connect(CreateESP)
+
 --==================================================
+-- ESP UPDATE
+--==================================================
+	Settings.ShowDistance =
+		not Settings.ShowDistance
+
+	UpdateToggle(
+		DistanceButton,
+		"Mostrar distancia",
+		Settings.ShowDistance
+	)
+
+end)
+
+HealthButton.Activated:Connect(function()
+
+	Settings.ShowHealth =
+		not Settings.ShowHealth
+
+	UpdateToggle(
+		HealthButton,
+		"Mostrar health",
+		Settings.ShowHealth
+	)
+
+end)
+
 
 
 
